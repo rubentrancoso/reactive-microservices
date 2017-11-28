@@ -1,0 +1,4 @@
+include 'transactions-api'
+include 'accounts-api'
+
+rootProject.name = 'reactive-microservices'

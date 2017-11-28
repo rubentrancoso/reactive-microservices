@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: accounts-api
+    
+server:
+  port: 8080
+  context-path: /v1
+management:
+  port: 9001
+  
+logging:
+  config: config/log4j2-console.xml
+
+---  
+spring:
+  profiles: debug
+  # hsqldb  
+  datasource:
+    driver-class-name: org.hsqldb.jdbcDriver
+    url: jdbc:hsqldb:mem:userdb
+    username: sa
+    password: sa
+  # jpa
+  jpa:
+    database-platform: org.hibernate.dialect.HSQLDialect
+    show-sql: true
+    hibernate.ddl-auto: create-drop
+    database: HSQL
+logging:
+  level:
+    org.springframework.transaction: DEBUG
+    org.springframework.orm.jpa: DEBUG     
+
+      
+      
+      
