@@ -1,9 +1,12 @@
 buildscript {
 	ext {
-		springBootVersion = '1.5.8.RELEASE'
+		springBootVersion = '2.0.0.M5'
 	}
 	repositories {
 		mavenCentral()
+		maven {
+		    url 'https://repo.spring.io/libs-snapshot'
+		}		
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -15,6 +18,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'application'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
 apply plugin: 'docker'
 
 group = 'com.company.ms'
@@ -24,6 +28,9 @@ targetCompatibility = 1.8
 
 repositories {
 	mavenCentral()
+	maven {
+	    url 'https://repo.spring.io/libs-snapshot'
+	}	
 }
 
 configurations {
@@ -32,14 +39,13 @@ configurations {
 }
 
 dependencies {
-    compile ('org.springframework.boot:spring-boot-starter-web')
+	compile("org.springframework.boot:spring-boot-starter-webflux")
+	compileOnly('org.projectlombok:lombok:1.16.18')
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('org.springframework.boot:spring-boot-starter-log4j2')
-	compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	runtime('org.hsqldb:hsqldb')
+	compile('org.springframework.boot:spring-boot-starter-data-mongodb-reactive')
 	dev('org.springframework.boot:spring-boot-devtools')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
-	testCompile('org.json:json')
 	testCompile('org.apache.httpcomponents:httpclient')
 	testCompile('junit:junit')
 }
