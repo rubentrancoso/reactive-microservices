@@ -29,19 +29,19 @@ public class Accounts {
 	@Autowired
 	SrvAccount accountService;
 
-	@RequestMapping(path = "/accounts/{account_id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody Mono<Account> patch(@PathVariable("account_id") String account_id, @RequestBody AccountData accountData) {
-		logger.info(String.format("post /register: limits[withdrawal=%1$,.1f,credit=%1$,.1f]", accountData.getAvailable_withdrawal_limit().getAmount(),accountData.getAvailable_credit_limit().getAmount()));
-		accountData.setAccount_id(account_id);
-		return accountService.update(accountData);
-	}
-	
 	@RequestMapping(path = "/accounts/limits", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
 	public @ResponseBody Flux<Account> list() {
 		logger.info(String.format("get /accounts/limits"));
 		return accountService.limits();
 	}	
 	
+	@RequestMapping(path = "/accounts/{account_id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody Mono<Account> patch(@PathVariable("account_id") String account_id, @RequestBody AccountData accountData) {
+		logger.info(String.format("post /register: limits[withdrawal=%1$,.1f,credit=%1$,.1f]", accountData.getAvailable_withdrawal_limit().getAmount(),accountData.getAvailable_credit_limit().getAmount()));
+		accountData.setAccount_id(account_id);
+		return accountService.update(accountData);
+	}
+
 	@RequestMapping(path = "/accounts", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
 	public @ResponseBody Mono<Account> create(@RequestBody AccountData accountData) {
 		logger.info(String.format("post /register: limits[withdrawal=%1$,.1f,credit=%1$,.1f]", accountData.getAvailable_withdrawal_limit().getAmount(),accountData.getAvailable_credit_limit().getAmount()));
@@ -51,7 +51,7 @@ public class Accounts {
 	@RequestMapping(path = "/hello", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Object hello() {
 		HttpStatus responseCode = HttpStatus.OK;
-		return new ResponseEntity<Object>(new Message("hello"), responseCode);
+		return new ResponseEntity<Object>(new Message("accounts-api hello"), responseCode);
 	}
 
 }

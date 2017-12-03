@@ -16,5 +16,4 @@ public class Message {
 		return String.format("[message=%s]", this.message);
 	}
 	
-	
 }

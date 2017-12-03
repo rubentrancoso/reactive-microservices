@@ -1,5 +1,7 @@
 package com.company.ms.services;
 
+import java.sql.Timestamp;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +18,7 @@ import reactor.core.publisher.Mono;
 public class SrvAccount {
 
 	private static final Logger logger = LoggerFactory.getLogger(SrvAccount.class);
-
+	
 	@Autowired
 	private AccountRepository accountRepository;
 
@@ -25,9 +27,13 @@ public class SrvAccount {
 				|| accountData.getAvailable_withdrawal_limit().equals(null)) {
 			return null;
 		}
-		Account account = new Account();
-		account.setAvailableCreditLimit(accountData.getAvailable_credit_limit().getAmount());
-		account.setAvailableWithdrawalLimit(accountData.getAvailable_withdrawal_limit().getAmount());
+		Account account = Account.newAccount(
+				accountData.getAvailable_credit_limit().getAmount(), 
+				accountData.getAvailable_withdrawal_limit().getAmount()
+		);
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		account.setCreated(timestamp);
+		account.setUpdated(timestamp);
 		return accountRepository.save(account);
 	}
 
@@ -42,6 +48,7 @@ public class SrvAccount {
 					accountData.getAvailable_credit_limit().getAmount()));
 			receivedAccount.setAvailableWithdrawalLimit(Double.sum(receivedAccount.getAvailableWithdrawalLimit(),
 					accountData.getAvailable_withdrawal_limit().getAmount()));
+			receivedAccount.setUpdated(new Timestamp(System.currentTimeMillis()));
 			return accountRepository.save(receivedAccount);
 		});
 	}

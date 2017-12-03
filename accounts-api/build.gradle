@@ -1,12 +1,11 @@
 buildscript {
 	ext {
-		springBootVersion = '2.0.0.M5'
+		springBootVersion = '2.0.0.M7'
 	}
 	repositories {
 		mavenCentral()
-		maven {
-		    url 'https://repo.spring.io/libs-snapshot'
-		}		
+		maven { url "https://repo.spring.io/snapshot" }
+		maven { url "https://repo.spring.io/milestone" }	
 	}
 	dependencies {
 		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
@@ -25,12 +24,12 @@ group = 'com.company.ms'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+mainClassName = 'com.company.ms.accounts.Application'
 
 repositories {
 	mavenCentral()
-	maven {
-	    url 'https://repo.spring.io/libs-snapshot'
-	}	
+	maven { url "https://repo.spring.io/snapshot" }
+	maven { url "https://repo.spring.io/milestone" }	
 }
 
 configurations {
@@ -43,7 +42,8 @@ dependencies {
 	compileOnly('org.projectlombok:lombok:1.16.18')
 	compile('org.springframework.boot:spring-boot-starter-actuator')
 	compile('org.springframework.boot:spring-boot-starter-log4j2')
-	compile('org.springframework.boot:spring-boot-starter-data-mongodb-reactive')
+	compile('org.springframework.boot:spring-boot-starter-data-cassandra-reactive')
+	compile('io.netty:netty-transport-native-epoll:4.1.9.Final:linux-x86_64')
 	dev('org.springframework.boot:spring-boot-devtools')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.apache.httpcomponents:httpclient')

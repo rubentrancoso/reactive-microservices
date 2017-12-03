@@ -10,7 +10,6 @@ public class Amount {
 		this.amount = amount;
 	}
 	
-	
 	public Double getAmount() {
 		return amount;
 	}
