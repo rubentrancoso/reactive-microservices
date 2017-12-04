@@ -19,8 +19,8 @@ import com.company.ms.cassandra.CassandraClient;
 @ComponentScan(basePackages = { "com.company.ms" })
 public class Application {
 
-	@Value("${cassandra.keyspace}")
-	String keySpace;
+	@Value("${cassandra.keyspaces}")
+	String keySpaces;
 
 	@Value("${cassandra.contactpoints}")
 	String contactPoints;
@@ -41,16 +41,23 @@ public class Application {
 			logger.info("Application started...");
 			cassandraClient.connect(contactPoints);
 			cassandraClient.getSession();
-			cassandraClient.dropKeySpace(keySpace);
-			cassandraClient.createKeySpace(keySpace);
-			try {
-				cassandraClient.createSchema("cassandra.cql");
-			} catch (IOException e) {
-				e.printStackTrace();
+			String keyspaces[] = keySpaces.split(",");
+			for(String keyspace: keyspaces) {
+				createSchema(keyspace.trim());
 			}
 			cassandraClient.closeSession();
 			cassandraClient.close();
 			System.exit(0);
+		}
+		
+		private void createSchema(String keyspace) {
+			cassandraClient.dropKeySpace(keyspace);
+			cassandraClient.createKeySpace(keyspace);
+			try {
+				cassandraClient.createSchema(keyspace + ".cql");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

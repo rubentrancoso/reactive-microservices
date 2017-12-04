@@ -24,9 +24,6 @@ public class CassandraClient {
 	@Value("${cassandra.contactpoints}")
 	String contactPoints;
 
-	@Value("${cassandra.keyspace}")
-	String keyspace;
-
 	private Cluster cluster;
 	private Session session;
 

@@ -1,3 +1,4 @@
+include 'cassandra-client'
 include 'transactions-api'
 include 'accounts-api'
 

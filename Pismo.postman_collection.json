@@ -31,7 +31,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n\t\"available_credit_limit\": {\n\t\t\"amount\": 123.45 \n\t},\n\t\"available_withdrawal_limit\": {\n\t\t\"amount\": 123.45 \n\t}\n}"
+					"raw": "{\n\t\"available_credit_limit\": {\n\t\t\"amount\": 0\n\t},\n\t\"available_withdrawal_limit\": {\n\t\t\"amount\": 0\n\t}\n}"
 				},
 				"url": {
 					"raw": "{{url}}/accounts",
@@ -91,21 +91,6 @@
 		},
 		{
 			"name": "getLimits",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"var jsonData = JSON.parse(responseBody);",
-							"postman.setEnvironmentVariable(\"accountId\", jsonData.accountId);",
-							"postman.setEnvironmentVariable(\"availableCreditLimit\", jsonData.availableCreditLimit);",
-							"postman.setEnvironmentVariable(\"availableWithdrawalLimit\", jsonData.availableWithdrawalLimit);",
-							""
-						]
-					}
-				}
-			],
 			"request": {
 				"method": "GET",
 				"header": [
@@ -126,6 +111,40 @@
 					"path": [
 						"accounts",
 						"limits"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "hello",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"available_credit_limit\": {\n\t\t\"amount\": 123.45 \n\t},\n\t\"available_withdrawal_limit\": {\n\t\t\"amount\": -123.45 \n\t}\n}"
+				},
+				"url": {
+					"raw": "{{url}}/hello",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"hello"
 					]
 				},
 				"description": ""

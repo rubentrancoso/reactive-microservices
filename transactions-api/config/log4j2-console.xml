@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://logging.apache.org/log4j/2.x/manual/lookups.html -->
+<Configuration status="INFO" packages="org.apache.logging.log4j.core.layout" verbose="false">
+
+	<Appenders>	
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout
+				pattern="%d{HH:mm:ss.SSS} [transactions-api] %-5level %logger{36} - %msg%n" />
+		</Console>
+	</Appenders>
+	
+	<Loggers>
+		<Root level="INFO">
+			<AppenderRef ref="Console" />
+		</Root>
+	</Loggers>
+</Configuration>

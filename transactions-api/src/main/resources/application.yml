@@ -3,48 +3,18 @@ spring:
     name: transactions-api
     
 server:
-  port: 8080
+  port: 8081
+
 management:
-  port: 9001
+  server:
+    port: 9002
+  
+cassandra:
+  contactpoints: localhost,127.0.0.1
+  port: 9043 
+  keyspace: transactions
   
 logging:
   config: config/log4j2-console.xml
-
-security:
-  antMatchers: 
-    -
-      method: 'GET'
-      url: '/info'
-    -
-      method: 'GET'
-      url: '/hello'
-    -
-      method: 'POST'
-      url: '/register'
-    -
-      method: 'POST'
-      url: '/login'
-
----  
-spring:
-  profiles: debug
-  # hsqldb  
-  datasource:
-    driver-class-name: org.hsqldb.jdbcDriver
-    url: jdbc:hsqldb:mem:userdb
-    username: sa
-    password: sa
-  # jpa
-  jpa:
-    database-platform: org.hibernate.dialect.HSQLDialect
-    show-sql: true
-    hibernate.ddl-auto: create-drop
-    database: HSQL
-logging:
-  level:
-    org.springframework.transaction: DEBUG
-    org.springframework.orm.jpa: DEBUG     
-
-      
       
       
