@@ -21,31 +21,34 @@ import lombok.ToString;
 @EqualsAndHashCode
 @Table
 @JsonInclude(content = Include.NON_NULL, value = Include.NON_NULL)
-public class Payment {
+public class PaymentTracking {
 
 	@Id
 	@PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 1)
-	private String paymentId;
+	private String paymentTrackintId;
 	
-	private String accountId;
-
 	private Double amount;
+	
+	private String creditTransactionId;
+	
+	private String debitTransactionId;
 	
 	@JsonFormat(pattern = "EEE yyyy-MM-dd HH:mm:ss.SSSZ")
 	private Date eventDate;
 
-	public Payment(String paymentId, String accountId, Double amount) {
-		this.paymentId = paymentId;
-		this.accountId = accountId;
+	public PaymentTracking(String paymentTrackId, String creditTransactionId, String debitTransactionId, Double amount) {
+		this.paymentTrackintId = paymentTrackId;
+		this.creditTransactionId = creditTransactionId;
+		this.debitTransactionId = debitTransactionId;
 		this.amount = amount;
 	}
 	
-	public static Payment newPayment(String accountId, Double amount ) {
-		return newPayment(UUIDGen.getUUID(), accountId, amount);
+	public static PaymentTracking newPaymentTracking(String creditTransactionId, String debitTransactionId, Double amount ) {
+		return newPaymentTracking(UUIDGen.getUUID(), creditTransactionId, debitTransactionId, amount);
 	}
 
-	protected static Payment newPayment(String paymentId, String accountId, Double amount ) {
-		return new Payment(paymentId, accountId, amount);
+	protected static PaymentTracking newPaymentTracking(String paymentTrackId, String creditTransactionId, String debitTransactionId, Double amount ) {
+		return new PaymentTracking(paymentTrackId, creditTransactionId, debitTransactionId, amount);
 	}
 
 }

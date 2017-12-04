@@ -8,6 +8,7 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import com.company.ms.helper.UUIDGen;
+import com.company.ms.types.PaymentType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -31,6 +32,8 @@ public class Transaction {
 
 	private int operationTypeId;
 	
+	private int chargeOrder;
+
 	private Double amount;
 
 	private Double balance;
@@ -45,6 +48,7 @@ public class Transaction {
 		this.transactionId = transactionId;
 		this.accountId = accountId;
 		this.operationTypeId = operationTypeId;
+		this.chargeOrder = PaymentType.getPaymentType(operationTypeId).chargeOrder();
 		this.amount = amount;
 		this.balance = balance;
 	}
