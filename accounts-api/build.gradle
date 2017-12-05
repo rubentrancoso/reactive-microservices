@@ -70,3 +70,5 @@ task buildDocker(type: Docker) {
 }
 
 buildDocker.dependsOn(build)
+
+// https://github.com/junit-team/junit5-samples/blob/master/junit5-gradle-consumer/build.gradle

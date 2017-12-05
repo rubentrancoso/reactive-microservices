@@ -22,6 +22,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.company.ms.accounts.Application;
+import com.company.ms.entities.Account;
 import com.company.ms.helper.Json;
 import com.company.ms.repositories.AccountRepository;
 import com.company.ms.userapi.message.AccountData;
@@ -38,7 +39,7 @@ public class AccountsTest {
 	@LocalServerPort
 	private int port;
 
-	@Value("${local.management.port}")
+	@Value("${management.server.port}")
 	private int mgt;
 
 	@Autowired
@@ -63,13 +64,11 @@ public class AccountsTest {
 		logger.info("@@@ testCreateAccount - Accounts response: "+ Json.prettyPrint(response.getBody()));	
 
 		then(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-		JSONObject available_credit_limit = responseBody.getJSONObject("available_credit_limit");
-		Double credit_value = available_credit_limit.getDouble("amount");
-		JSONObject available_withdrawal_limit = responseBody.getJSONObject("available_withdrawal_limit");
-		Double withdrawal_value = available_withdrawal_limit.getDouble("amount");
+		Double availableCreditLimit = responseBody.getDouble("availableCreditLimit");
+		Double availableWithdrawalLimit = responseBody.getDouble("availableWithdrawalLimit");
 		
-		then(credit_value.equals(5000.0));
-		then(withdrawal_value.equals(5000.0));
+		then(availableCreditLimit.equals(5000.0));
+		then(availableWithdrawalLimit.equals(5000.0));
 	
 	}
 	
@@ -83,20 +82,22 @@ public class AccountsTest {
 
 		JSONObject responseBody = new JSONObject((Map<String, ?>) response.getBody());
 		
-		Long account_id = responseBody.getLong("account_id");
+		Json.prettyPrint(response.getBody());
 		
-		String url = String.format("/accounts/%d", account_id);
+		String account_id = responseBody.getString("accountId");
+		
+		String url = String.format("/accounts/%s", account_id);
 
 		accountData = new AccountData();
 		accountData.setAvailable_credit_limit(new Amount(10.0));
 		accountData.setAvailable_withdrawal_limit(new Amount(-10.0));
 
-		AccountData accountDataOut = (AccountData) this.testRestTemplate.patchForObject(url, accountData, AccountData.class);
+		Account accountDataOut = (Account) this.testRestTemplate.patchForObject(url, accountData, Account.class);
 
 		logger.info("@@@ testUpdateteAccount - Accounts response: "+ Json.prettyPrint(accountDataOut));	
 
-		then(accountDataOut.getAvailable_credit_limit().getAmount().equals(20.0));
-		then(accountDataOut.getAvailable_withdrawal_limit().getAmount().equals(0.0));
+		then(accountDataOut.getAvailableCreditLimit().equals(20.0));
+		then(accountDataOut.getAvailableWithdrawalLimit().equals(0.0));
 	}
 
 

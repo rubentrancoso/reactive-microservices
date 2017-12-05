@@ -8,6 +8,11 @@ sudo docker run --name cassandra -d -p 9042:9042 cassandra
 
 sleep 15
 
+cd cassandra-client
+./build.sh
+./run.sh
+cd ..
+
 ./gradlew clean test
 # --debug
 
@@ -17,4 +22,4 @@ sleep 15
 sudo docker stop cassandra
 sudo docker rm cassandra
 
-google-chrome file:///$(pwd)/build/reports/tests/test/index.html
+google-chrome file:///$(pwd)/accounts-api/build/reports/tests/test/index.html
