@@ -1,5 +1,7 @@
 #!/bin/bash -x
 
+java -version
+
 # junit 4 test
 
 sudo docker stop cassandra

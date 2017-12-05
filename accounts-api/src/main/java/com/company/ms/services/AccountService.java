@@ -15,9 +15,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
-public class SrvAccount {
+public class AccountService {
 
-	private static final Logger logger = LoggerFactory.getLogger(SrvAccount.class);
+	private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
 	
 	@Autowired
 	private AccountRepository accountRepository;
@@ -41,16 +41,21 @@ public class SrvAccount {
 		return accountRepository.findAll();
 	}
 
-	public Mono<Account> update(AccountData accountData) {
+	public Mono<Account> update(String account_id, Mono<AccountData> accountData) {
 		logger.info("updating account...");
-		return accountRepository.findById(accountData.getAccount_id()).flatMap(receivedAccount -> {
-			receivedAccount.setAvailableCreditLimit(Double.sum(receivedAccount.getAvailableCreditLimit(),
-					accountData.getAvailable_credit_limit().getAmount()));
-			receivedAccount.setAvailableWithdrawalLimit(Double.sum(receivedAccount.getAvailableWithdrawalLimit(),
-					accountData.getAvailable_withdrawal_limit().getAmount()));
-			receivedAccount.setUpdated(new Timestamp(System.currentTimeMillis()));
-			return accountRepository.save(receivedAccount);
-		});
+		return accountRepository.findById(account_id)
+			.flatMap(originaAccount -> { 
+				// update Account instance with new Values
+				accountData.map(newValues-> { 
+					originaAccount.setAvailableCreditLimit(Double.sum(originaAccount.getAvailableCreditLimit(),
+							newValues.getAvailable_credit_limit().getAmount()));
+					originaAccount.setAvailableWithdrawalLimit(Double.sum(originaAccount.getAvailableWithdrawalLimit(),
+							newValues.getAvailable_withdrawal_limit().getAmount()));
+					originaAccount.setUpdated(new Timestamp(System.currentTimeMillis()));
+					return originaAccount; 
+				}).subscribe();
+				return accountRepository.save(originaAccount);
+			});
 	}
 
 }

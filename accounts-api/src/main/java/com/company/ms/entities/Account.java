@@ -13,19 +13,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 @Data
-@ToString
-@EqualsAndHashCode
 @Table
+@NoArgsConstructor
 @JsonInclude(content = Include.NON_NULL, value = Include.NON_NULL)
 public class Account {
 
 	@Id
 	@PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 1)
-	private final String accountId;
+	private String accountId;
 
 	private Double availableCreditLimit;
 

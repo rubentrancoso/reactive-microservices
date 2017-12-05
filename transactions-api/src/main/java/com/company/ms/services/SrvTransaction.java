@@ -25,16 +25,13 @@ public class SrvTransaction {
 	private static final Logger logger = LoggerFactory.getLogger(SrvTransaction.class);
 
 	@Autowired
-	private TransactionRepository transactionRepository;
-
-	@Autowired
-	private PaymentRepository paymentRepository;
-
-	@Autowired
 	ReactiveCassandraTemplate template;
-
 	@Autowired
-	private PaymentTrackingRepository paymentTrackingRepository;
+	PaymentRepository paymentRepository;
+	@Autowired
+	PaymentTrackingRepository paymentTrackingRepository;
+	@Autowired
+	TransactionRepository transactionRepository;
 
 	public Mono<Transaction> addSingleTransaction(TransactionData transactionData) {
 		logger.info(String.format("performing transaction: %s", transactionData.toString()));
@@ -54,18 +51,17 @@ public class SrvTransaction {
 
 	public void addPayment(PaymentData[] paymentsData) {
 		Flux.fromArray(paymentsData)
-			// save payment
-			.map(paymentData -> {
-				Payment payment = genPaymentObj(paymentData);
-				paymentRepository.save(payment);
-				return payment;
-			})
-			// update balance
-			.map(payment -> {
-				updateBalance(payment);
-				return payment;
-			})
-			.subscribe();
+				// save payment
+				.map(paymentData -> {
+					Payment payment = genPaymentObj(paymentData);
+					paymentRepository.save(payment);
+					return payment;
+				})
+				// update balance
+				.map(payment -> {
+					updateBalance(payment);
+					return payment;
+				}).subscribe();
 	}
 
 	private Payment genPaymentObj(PaymentData paymentData) {
@@ -87,16 +83,15 @@ public class SrvTransaction {
 
 	private void updateBalance(Payment payment) {
 		Double amount = payment.getAmount();
-		transactionRepository.findByAccountOrderByEvent(payment.getAccountId()).map(
-				transaction -> {
-					Double balance = transaction.getBalance();
-					if(amount > 0.0 && balance < 0) {
-						Double reminder = balance % amount;
-						transaction.setBalance(balance);
-					}
-					logger.info("transaction = "+ transaction.toString());
-					return transaction;
-				}).subscribe();
+		transactionRepository.findByAccountOrderByEvent(payment.getAccountId()).map(transaction -> {
+			Double balance = transaction.getBalance();
+			if (amount > 0.0 && balance < 0) {
+				Double reminder = balance % amount;
+				transaction.setBalance(balance);
+			}
+			logger.info("transaction = " + transaction.toString());
+			return transaction;
+		}).subscribe();
 	}
 
 	public Flux<Transaction> listTransactionsFromAccount(String account_id) {
@@ -106,20 +101,17 @@ public class SrvTransaction {
 
 	public void addTransactionGroup(TransactionData[] transactionsData) {
 		Flux.fromArray(transactionsData)
-		// process transactions
-		.map(transactionData -> {
-			Transaction transaction = genTransactionObj(transactionData);
-			return transactionRepository.save(transaction);
-		});
+				// process transactions
+				.map(transactionData -> {
+					Transaction transaction = genTransactionObj(transactionData);
+					return transactionRepository.save(transaction);
+				});
 	}
 
 	private Transaction genTransactionObj(TransactionData transactionData) {
-		Transaction transaction = Transaction.newTransaction(
-				transactionData.getAccount_id(), 
-				transactionData.getOperation_type_id(), 
-				transactionData.getAmount().getAmount(), 
-				transactionData.getAmount().getAmount()
-		);
+		Transaction transaction = Transaction.newTransaction(transactionData.getAccount_id(),
+				transactionData.getOperation_type_id(), transactionData.getAmount().getAmount(),
+				transactionData.getAmount().getAmount());
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		transaction.setEventDate(timestamp);
 		return transaction;

@@ -13,12 +13,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 
 @Data
-@ToString
-@EqualsAndHashCode
 @Table
 @JsonInclude(content = Include.NON_NULL, value = Include.NON_NULL)
 public class PaymentTracking {

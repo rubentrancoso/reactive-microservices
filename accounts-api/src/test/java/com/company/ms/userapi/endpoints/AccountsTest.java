@@ -3,6 +3,7 @@ package com.company.ms.userapi.endpoints;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -17,21 +18,23 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.company.ms.accounts.Application;
 import com.company.ms.entities.Account;
 import com.company.ms.helper.Json;
 import com.company.ms.repositories.AccountRepository;
+import com.company.ms.services.AccountService;
 import com.company.ms.userapi.message.AccountData;
 import com.company.ms.userapi.message.Amount;
 
-
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = {"management.port=0"})
+@TestPropertySource(properties = {"management.server.port=0"})
 public class AccountsTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(AccountsTest.class);
@@ -41,9 +44,15 @@ public class AccountsTest {
 
 	@Value("${management.server.port}")
 	private int mgt;
+	
+	WebTestClient webTestClient;
+    List<Account> expectedAccounts;
 
 	@Autowired
-	private TestRestTemplate testRestTemplate;
+	private TestRestTemplate restTemplate;
+	
+	@Autowired
+	private AccountService accountService;
 	
 	@Autowired
 	private AccountRepository accountRepository;
@@ -54,48 +63,83 @@ public class AccountsTest {
 	}
 	
 	@Test
-	public void testCreateAccount() throws Exception {
+	public void shouldReturn200WhenSendingRequestToController() throws Exception {
+		@SuppressWarnings("rawtypes")
+		ResponseEntity<Map> entity = restTemplate.getForEntity("http://localhost:" + this.port + "/hello", Map.class);
+		then(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+		then(entity.getBody().get("message")).isEqualTo("accounts-api hello");
+	}
+
+//	@Test
+//	public void shouldReturn200WhenSendingRequestToManagementEndpoint() throws Exception {
+//		@SuppressWarnings("rawtypes")
+//		ResponseEntity<Map> entity = restTemplate.getForEntity("http://localhost:" + this.mgt + "/info", Map.class);
+//		then(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+//	}	
+
+	@Test
+	public void testGetLimits() throws Exception {
+        webTestClient = WebTestClient.bindToController(new AccountController(accountService)).build();
+        expectedAccounts = accountRepository.findAll().collectList().block();
+
+		this.webTestClient.get()
+	        .uri("/limits")
+	        .accept(MediaType.TEXT_EVENT_STREAM)
+	        .exchange()
+	        .expectStatus().isOk()
+	        .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM)
+	        .returnResult(Account.class);
+	}
+	
+	@Test
+	public void shouldCreateAnAccount() throws Exception {
+		// Create account Data
 		AccountData accountData = new AccountData();
 		accountData.setAvailable_credit_limit(new Amount(5000.0));
 		accountData.setAvailable_withdrawal_limit(new Amount(5000.0));
-		ResponseEntity<Object> response = this.testRestTemplate.postForEntity("/accounts", accountData, Object.class);
+		
+		// Call endpoint
+		ResponseEntity<Object> response = restTemplate.postForEntity("/accounts", accountData, Object.class);
 		@SuppressWarnings("unchecked")
 		JSONObject responseBody = new JSONObject((Map<String, ?>) response.getBody());
 		logger.info("@@@ testCreateAccount - Accounts response: "+ Json.prettyPrint(response.getBody()));	
 
+		// Verify status and get values
 		then(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		Double availableCreditLimit = responseBody.getDouble("availableCreditLimit");
 		Double availableWithdrawalLimit = responseBody.getDouble("availableWithdrawalLimit");
 		
+		// Verify values
 		then(availableCreditLimit.equals(5000.0));
 		then(availableWithdrawalLimit.equals(5000.0));
-	
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testUpdateteAccount() throws Exception {
+	public void shouldUpdateAnAccount() throws Exception {
+		// Create account Data
 		AccountData accountData = new AccountData();
 		accountData.setAvailable_credit_limit(new Amount(10.0));
 		accountData.setAvailable_withdrawal_limit(new Amount(10.0));
-		ResponseEntity<Object> response = this.testRestTemplate.postForEntity("/accounts", accountData, Object.class);
-
+		
+		// Call endpoint to create account
+		ResponseEntity<Object> response = restTemplate.postForEntity("/accounts", accountData, Object.class);
 		JSONObject responseBody = new JSONObject((Map<String, ?>) response.getBody());
-		
 		Json.prettyPrint(response.getBody());
-		
 		String account_id = responseBody.getString("accountId");
 		
-		String url = String.format("/accounts/%s", account_id);
-
+		// Update account data
 		accountData = new AccountData();
 		accountData.setAvailable_credit_limit(new Amount(10.0));
 		accountData.setAvailable_withdrawal_limit(new Amount(-10.0));
 
-		Account accountDataOut = (Account) this.testRestTemplate.patchForObject(url, accountData, Account.class);
-
+		// Call endpoint to update account
+		String url = String.format("/accounts/%s", account_id);
+		Account accountDataOut = (Account) restTemplate.patchForObject(url, accountData, Account.class);
 		logger.info("@@@ testUpdateteAccount - Accounts response: "+ Json.prettyPrint(accountDataOut));	
 
+		// Verify values
+		then(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 		then(accountDataOut.getAvailableCreditLimit().equals(20.0));
 		then(accountDataOut.getAvailableWithdrawalLimit().equals(0.0));
 	}

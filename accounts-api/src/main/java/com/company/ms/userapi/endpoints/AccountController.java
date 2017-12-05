@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.company.ms.entities.Account;
-import com.company.ms.services.SrvAccount;
+import com.company.ms.services.AccountService;
 import com.company.ms.userapi.message.AccountData;
 import com.company.ms.userapi.message.Message;
 
@@ -22,24 +22,26 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Controller
-public class Accounts {
+public class AccountController {
 
-	private static final Logger logger = LoggerFactory.getLogger(Accounts.class);
+	private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
 	@Autowired
-	SrvAccount accountService;
+	AccountService accountService;
+	
+	AccountController(AccountService accountService) {
+		this.accountService = accountService;
+	}
 
 	@RequestMapping(path = "/accounts/limits", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-	public @ResponseBody Flux<Account> list() {
+	public @ResponseBody Flux<Account> limits() {
 		logger.info(String.format("get /accounts/limits"));
 		return accountService.limits();
 	}	
 	
 	@RequestMapping(path = "/accounts/{account_id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody Mono<Account> patch(@PathVariable("account_id") String account_id, @RequestBody AccountData accountData) {
-		logger.info(String.format("post /register: limits[withdrawal=%1$,.1f,credit=%1$,.1f]", accountData.getAvailable_withdrawal_limit().getAmount(),accountData.getAvailable_credit_limit().getAmount()));
-		accountData.setAccount_id(account_id);
-		return accountService.update(accountData);
+	public @ResponseBody Mono<Account> update(@PathVariable("account_id") String account_id, @RequestBody Mono<AccountData> accountData) {
+		return accountService.update(account_id, accountData);
 	}
 
 	@RequestMapping(path = "/accounts", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
