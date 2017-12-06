@@ -15,9 +15,6 @@ public class CassandraConfigurarion extends AbstractReactiveCassandraConfigurati
 
 	@Value("${cassandra.contactpoints}")
 	String contactPoints;
-	
-	@Autowired
-	TransactionRepository accountRepository;
 
 	@Override
 	protected String getKeyspaceName() {
