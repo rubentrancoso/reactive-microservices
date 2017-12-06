@@ -28,10 +28,6 @@ public class AccountController {
 
 	@Autowired
 	AccountService accountService;
-	
-	AccountController(AccountService accountService) {
-		this.accountService = accountService;
-	}
 
 	@RequestMapping(path = "/accounts/limits", method = RequestMethod.GET, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public @ResponseBody Flux<Account> limits() {
