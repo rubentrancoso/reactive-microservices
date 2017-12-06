@@ -32,10 +32,11 @@ public class AccountsITest2 {
 	
     @Autowired
 	private AccountRepository accountRepository;
-	
+    
 	@Before
 	public void setup() {
 		accountRepository.deleteAll().block();
+		webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build();
 		Helper.insertRandomAccounts(accountRepository, 10);
 		expectedAccounts = accountRepository.findAll().collectList().block();
 	}
@@ -43,21 +44,19 @@ public class AccountsITest2 {
 	@Test
     public void shouldReturnAllAccounts() {
 		logger.info("@@@ shouldReturnAllAccounts");
-		webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build();
-        webTestClient.get().uri("/accounts/limits")
-                .accept(MediaType.TEXT_EVENT_STREAM)
-                .exchange()
-                .expectStatus().isOk()
-                .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM)
-                .expectBodyList(Account.class).isEqualTo(expectedAccounts);
+        webTestClient.get()
+        	.uri("/accounts/limits")
+            .accept(MediaType.TEXT_EVENT_STREAM)
+            .exchange()
+            .expectStatus().isOk()
+            .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM)
+            .expectBodyList(Account.class).isEqualTo(expectedAccounts);
     }	
 
 	@Test
 	public void shouldReadAnAccountFluxFromLimits() throws Exception {
 		logger.info("@@@ shouldReadAnAccountFluxFromLimits");
-        webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build();
-
-		this.webTestClient.get()
+		webTestClient.get()
 	        .uri("/accounts/limits")
 	        .accept(MediaType.TEXT_EVENT_STREAM)
 	        .exchange()
