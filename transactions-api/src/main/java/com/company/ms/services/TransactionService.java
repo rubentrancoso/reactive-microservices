@@ -20,9 +20,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
-public class SrvTransaction {
+public class TransactionService {
 
-	private static final Logger logger = LoggerFactory.getLogger(SrvTransaction.class);
+	private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
 	@Autowired
 	ReactiveCassandraTemplate template;

@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.company.ms.entities.Transaction;
 import com.company.ms.helper.Json;
-import com.company.ms.services.SrvTransaction;
+import com.company.ms.services.TransactionService;
 import com.company.ms.userapi.message.Message;
 import com.company.ms.userapi.message.PaymentData;
 import com.company.ms.userapi.message.TransactionData;
@@ -24,12 +24,12 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Controller
-public class Transactions {
+public class TransactionController {
 
-	private static final Logger logger = LoggerFactory.getLogger(Transactions.class);
+	private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
 
 	@Autowired
-	SrvTransaction transactionService;	
+	TransactionService transactionService;	
 	
 	@RequestMapping(path = "/transactions", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Mono<Transaction> addSingleTransaction(@RequestBody TransactionData transactionData) {
