@@ -5,6 +5,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -46,13 +47,16 @@ public class AccountsTest1 {
 
 	@Autowired
 	private TestRestTemplate restTemplate;
+    List<Account> expectedAccounts;
 	
 	@Autowired
 	private AccountRepository accountRepository;
 	
 	@Before
 	public void setup() {
-		accountRepository.deleteAll();
+		accountRepository.deleteAll().block();
+		Helper.insertRandomAccounts(accountRepository, 10);
+		expectedAccounts = accountRepository.findAll().collectList().block();
 	}
 	
 	@Test
@@ -128,6 +132,5 @@ public class AccountsTest1 {
 		then(accountDataOut.getAvailableCreditLimit().equals(20.0));
 		then(accountDataOut.getAvailableWithdrawalLimit().equals(0.0));
 	}
-
 
 }

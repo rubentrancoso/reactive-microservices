@@ -35,8 +35,9 @@ public class AccountsTest2 {
 	
 	@Before
 	public void setup() {
+		accountRepository.deleteAll().block();
+		Helper.insertRandomAccounts(accountRepository, 10);
 		expectedAccounts = accountRepository.findAll().collectList().block();
-		accountRepository.deleteAll();
 	}
 	
 	@Test
