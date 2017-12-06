@@ -20,9 +20,9 @@ import com.company.ms.repositories.AccountRepository;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AccountsTest2 {
+public class AccountsITest2 {
 
-	private static final Logger logger = LoggerFactory.getLogger(AccountsTest2.class);
+	private static final Logger logger = LoggerFactory.getLogger(AccountsITest2.class);
 	
 	@LocalServerPort
 	private int port;

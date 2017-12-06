@@ -35,9 +35,9 @@ import com.company.ms.userapi.message.Amount;
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {"management.server.port=0"})
-public class AccountsTest1 {
+public class AccountsITest1 {
 
-	private static final Logger logger = LoggerFactory.getLogger(AccountsTest1.class);
+	private static final Logger logger = LoggerFactory.getLogger(AccountsITest1.class);
 	
 	@LocalServerPort
 	private int port;
