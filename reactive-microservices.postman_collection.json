@@ -1,0 +1,323 @@
+{
+	"info": {
+		"name": "reactive-microservices",
+		"_postman_id": "53d0ba47-5fb3-b632-1b61-81f06fc9e24b",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "accounts hello",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"available_credit_limit\": {\n\t\t\"amount\": 123.45 \n\t},\n\t\"available_withdrawal_limit\": {\n\t\t\"amount\": -123.45 \n\t}\n}"
+				},
+				"url": {
+					"raw": "{{account-api}}/hello",
+					"host": [
+						"{{account-api}}"
+					],
+					"path": [
+						"hello"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "create account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"accountId\", jsonData.accountId);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"available_credit_limit\": {\n\t\t\"amount\": 0\n\t},\n\t\"available_withdrawal_limit\": {\n\t\t\"amount\": 0\n\t}\n}"
+				},
+				"url": {
+					"raw": "{{account-api}}/accounts",
+					"host": [
+						"{{account-api}}"
+					],
+					"path": [
+						"accounts"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "update account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"accountId\", jsonData.accountId);",
+							"postman.setEnvironmentVariable(\"availableCreditLimit\", jsonData.availableCreditLimit);",
+							"postman.setEnvironmentVariable(\"availableWithdrawalLimit\", jsonData.availableWithdrawalLimit);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"available_credit_limit\": {\n\t\t\"amount\": 123.45 \n\t},\n\t\"available_withdrawal_limit\": {\n\t\t\"amount\": -123.45 \n\t}\n}"
+				},
+				"url": {
+					"raw": "{{account-api}}/accounts/{{accountId}}",
+					"host": [
+						"{{account-api}}"
+					],
+					"path": [
+						"accounts",
+						"{{accountId}}"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "accounts limits",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"available_credit_limit\": {\n\t\t\"amount\": 123.45 \n\t},\n\t\"available_withdrawal_limit\": {\n\t\t\"amount\": -123.45 \n\t}\n}"
+				},
+				"url": {
+					"raw": "{{account-api}}/accounts/limits",
+					"host": [
+						"{{account-api}}"
+					],
+					"path": [
+						"accounts",
+						"limits"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "transactions hello",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"available_credit_limit\": {\n\t\t\"amount\": 123.45 \n\t},\n\t\"available_withdrawal_limit\": {\n\t\t\"amount\": -123.45 \n\t}\n}"
+				},
+				"url": {
+					"raw": "{{transaction-api}}/hello",
+					"host": [
+						"{{transaction-api}}"
+					],
+					"path": [
+						"hello"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "add transaction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"account_id\", jsonData.account_id);",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"account_id\": \"{{accountId}}\",\n\t\"operation_type_id\": 1,\n\t\"amount\": 123.45\n}"
+				},
+				"url": {
+					"raw": "{{transaction-api}}/transactions",
+					"host": [
+						"{{transaction-api}}"
+					],
+					"path": [
+						"transactions"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "add transaction group",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n\t{\n\t\t\"account_id\": \"{{accountId}}\",\n\t\t\"operation_type_id\": 3,\n\t\t\"amount\": 50.00\n\t},\n\t{\n\t\t\"account_id\": \"{{accountId}}\",\n\t\t\"operation_type_id\": 1,\n\t\t\"amount\": 23.5\n\t},\n\t{\n\t\t\"account_id\": \"{{accountId}}\",\n\t\t\"operation_type_id\": 1,\n\t\t\"amount\": 18.7\n\t}\n]"
+				},
+				"url": {
+					"raw": "{{transaction-api}}/transactionsgroup",
+					"host": [
+						"{{transaction-api}}"
+					],
+					"path": [
+						"transactionsgroup"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "add payment group",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"",
+							""
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n\t{\n\t\t\"account_id\": \"{{accountId}}\",\n\t\t\"amount\": 123.45\n\t},\n\t{\n\t\t\"account_id\": \"{{accountId}}\",\n\t\t\"amount\": 123.45\n\t}\n]\n"
+				},
+				"url": {
+					"raw": "{{transaction-api}}/payments",
+					"host": [
+						"{{transaction-api}}"
+					],
+					"path": [
+						"payments"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "list all transactions for account",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"available_credit_limit\": {\n\t\t\"amount\": 123.45 \n\t},\n\t\"available_withdrawal_limit\": {\n\t\t\"amount\": -123.45 \n\t}\n}"
+				},
+				"url": {
+					"raw": "{{transaction-api}}/transactions/{{accountId}}",
+					"host": [
+						"{{transaction-api}}"
+					],
+					"path": [
+						"transactions",
+						"{{accountId}}"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
