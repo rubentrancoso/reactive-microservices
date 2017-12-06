@@ -33,7 +33,7 @@ public class AccountController {
 		this.accountService = accountService;
 	}
 
-	@RequestMapping(path = "/accounts/limits", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+	@RequestMapping(path = "/accounts/limits", method = RequestMethod.GET, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public @ResponseBody Flux<Account> limits() {
 		logger.info(String.format("get /accounts/limits"));
 		return accountService.limits();

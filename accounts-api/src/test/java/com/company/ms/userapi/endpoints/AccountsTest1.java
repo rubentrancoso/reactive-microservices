@@ -2,8 +2,9 @@ package com.company.ms.userapi.endpoints;
 
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -18,41 +19,33 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.client.ResourceAccessException;
 
 import com.company.ms.accounts.Application;
 import com.company.ms.entities.Account;
 import com.company.ms.helper.Json;
 import com.company.ms.repositories.AccountRepository;
-import com.company.ms.services.AccountService;
 import com.company.ms.userapi.message.AccountData;
 import com.company.ms.userapi.message.Amount;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {"management.server.port=0"})
-public class AccountsTest {
+public class AccountsTest1 {
 
-	private static final Logger logger = LoggerFactory.getLogger(AccountsTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(AccountsTest1.class);
 	
 	@LocalServerPort
 	private int port;
 
 	@Value("${management.server.port}")
 	private int mgt;
-	
-	WebTestClient webTestClient;
-    List<Account> expectedAccounts;
 
 	@Autowired
 	private TestRestTemplate restTemplate;
-	
-	@Autowired
-	private AccountService accountService;
 	
 	@Autowired
 	private AccountRepository accountRepository;
@@ -70,26 +63,18 @@ public class AccountsTest {
 		then(entity.getBody().get("message")).isEqualTo("accounts-api hello");
 	}
 
-//	@Test
-//	public void shouldReturn200WhenSendingRequestToManagementEndpoint() throws Exception {
-//		@SuppressWarnings("rawtypes")
-//		ResponseEntity<Map> entity = restTemplate.getForEntity("http://localhost:" + this.mgt + "/info", Map.class);
-//		then(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
-//	}	
-
 	@Test
-	public void testGetLimits() throws Exception {
-        webTestClient = WebTestClient.bindToController(new AccountController(accountService)).build();
-        expectedAccounts = accountRepository.findAll().collectList().block();
-
-		this.webTestClient.get()
-	        .uri("/limits")
-	        .accept(MediaType.TEXT_EVENT_STREAM)
-	        .exchange()
-	        .expectStatus().isOk()
-	        .expectHeader().contentType(MediaType.TEXT_EVENT_STREAM)
-	        .returnResult(Account.class);
-	}
+	public void shouldFailUntilReactiveHealthIsReleased() {
+		try {
+			@SuppressWarnings({ "rawtypes", "unused" })
+			ResponseEntity<Map> entity = restTemplate.getForEntity("http://localhost:" + this.mgt + "/info", Map.class);
+			//	then(entity.getStatusCode()).isEqualTo(HttpStatus.OK);
+			fail();
+		} catch (ResourceAccessException expected) {
+			System.out.println(expected.getMessage());
+			assertTrue(expected.getMessage().startsWith("I/O error on GET request for \"http://localhost:"));
+		}
+	}	
 	
 	@Test
 	public void shouldCreateAnAccount() throws Exception {
