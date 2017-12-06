@@ -23,7 +23,7 @@ public class Helper {
 	public static void insertRandomAccounts(AccountRepository accountRepository, int count) {
 		for(int i=0;i<count;i++) {
 			Account a = Helper.generateRandomAccount();
-			accountRepository.save(a).subscribe();
+			accountRepository.save(a);
 		}
 	}	
 	
