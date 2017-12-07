@@ -1,5 +1,6 @@
 package com.company.ms.userapi.endpoints;
 
+import java.sql.Timestamp;
 import java.util.Random;
 
 import com.company.ms.entities.Transaction;
@@ -61,6 +62,15 @@ public class Helper {
 				&& (transaction.getChargeOrder() == OperationType
 						.getOperationType(transactionData.getOperation_type_id()).chargeOrder()
 						&& transaction.getOperationTypeId() == transactionData.getOperation_type_id());
+	}
+	
+	public static Transaction genTransactionObj(TransactionData transactionData) {
+		Transaction transaction = Transaction.newTransaction(transactionData.getAccount_id(),
+				transactionData.getOperation_type_id(), transactionData.getAmount().getAmount(),
+				transactionData.getAmount().getAmount());
+		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+		transaction.setEventDate(timestamp);
+		return transaction;
 	}
 
 }

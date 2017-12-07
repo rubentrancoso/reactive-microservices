@@ -1,8 +1,11 @@
 package com.company.ms.userapi.endpoints;
 
 import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -24,14 +27,11 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import com.company.ms.entities.Transaction;
-import com.company.ms.helper.Json;
 import com.company.ms.repositories.PaymentRepository;
 import com.company.ms.repositories.PaymentTrackingRepository;
 import com.company.ms.repositories.TransactionRepository;
 import com.company.ms.transactions.Application;
 import com.company.ms.userapi.message.TransactionData;
-
-import reactor.core.publisher.Flux;
 
 
 @RunWith(SpringRunner.class)
@@ -89,8 +89,13 @@ public class TransactionsTest {
 	
 	@Test
 	public void shouldAddAnTransactionArray() throws Exception {
+		logger.info("shouldAddAnTransactionArray");
 		// Create account Data
 		TransactionData[] transactionsData = Helper.generateRandomTransactionDataArray(10);
+		Map<String,TransactionData> expected_array = new HashMap<String, TransactionData>();
+		for(TransactionData transactionData: transactionsData) {
+			expected_array.put(transactionData.getAccount_id(), transactionData);
+		}
 
 		// Call endpoint
 		webTestClient.post()
@@ -100,8 +105,14 @@ public class TransactionsTest {
         	.exchange();
 		
 		List<Transaction> result = transactionRepository.findAll().collectList().block();
-		List<TransactionData> expected = Arrays.asList(transactionsData);
-		// TODO: assert
+		for (Iterator<Transaction> iterator = result.iterator(); iterator.hasNext();) {
+			Transaction result_transaction = (Transaction) iterator.next();
+			TransactionData expected_item;
+			assertNotNull(expected_item = expected_array.get(result_transaction.getAccountId()));
+			assertTrue(expected_item.getAccount_id().equals(result_transaction.getAccountId()));
+			assertTrue(expected_item.getAmount().getAmount().equals(result_transaction.getAmount()));
+			assertTrue(expected_item.getOperation_type_id() == result_transaction.getOperationTypeId());
+		}
 	}	
 	
 //	@RequestMapping(path = "/transactions/{account_id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
