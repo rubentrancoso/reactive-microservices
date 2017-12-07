@@ -153,7 +153,11 @@ public class TransactionsTest {
 //	}
 //
 	
+	@Test
+	public void shouldReturnAllTransationsForAGivenAccount() throws Exception {
+		logger.info("shouldReturnAllTransationsForAGivenAccount");
 
+	}
 
 
 }
