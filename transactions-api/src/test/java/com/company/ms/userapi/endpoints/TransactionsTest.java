@@ -26,11 +26,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import com.company.ms.entities.Payment;
 import com.company.ms.entities.Transaction;
 import com.company.ms.repositories.PaymentRepository;
 import com.company.ms.repositories.PaymentTrackingRepository;
 import com.company.ms.repositories.TransactionRepository;
 import com.company.ms.transactions.Application;
+import com.company.ms.userapi.message.PaymentData;
 import com.company.ms.userapi.message.TransactionData;
 
 
@@ -115,17 +117,41 @@ public class TransactionsTest {
 		}
 	}	
 	
+	@Test
+	public void shouldAddAnPaymentArray() throws Exception {
+		logger.info("shouldAddAnPaymentArray");
+		// Create account Data
+		PaymentData[] paymentsData = Helper.generateRandomPaymentDataArray(10);
+		Map<String,PaymentData> expected_array = new HashMap<String, PaymentData>();
+		for(PaymentData paymentData: paymentsData) {
+			expected_array.put(paymentData.getAccount_id(), paymentData);
+		}
+
+		// Call endpoint
+		webTestClient.post()
+        	.uri("/payments")
+        	.accept(MediaType.APPLICATION_STREAM_JSON)
+        	.body(BodyInserters.fromObject(paymentsData))
+        	.exchange();
+		
+		List<Payment> result = paymentRepository.findAll().collectList().block();
+		for (Iterator<Payment> iterator = result.iterator(); iterator.hasNext();) {
+			Payment result_payment = (Payment) iterator.next();
+			PaymentData expected_item;
+			assertNotNull(expected_item = expected_array.get(result_payment.getAccountId()));
+			assertTrue(expected_item.getAccount_id().equals(result_payment.getAccountId()));
+			assertTrue(expected_item.getAmount().getAmount().equals(result_payment.getAmount()));
+		}
+	}	
+	
+	
+	
 //	@RequestMapping(path = "/transactions/{account_id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
 //	public @ResponseBody Flux<Transaction> listTransactionsFromAccount(@PathVariable("account_id") String account_id) {
 //		logger.info(String.format("get /transactions"));
 //		return transactionService.listTransactionsFromAccount(account_id);
 //	}
 //
-//	@RequestMapping(path = "/payments", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-//	public @ResponseBody void addPayments(@RequestBody PaymentData[] paymentData) {
-//		logger.info(String.format("post /payments: %s", Json.prettyPrint(paymentData)));
-//		transactionService.addPayment(paymentData);
-//	}		
 	
 
 

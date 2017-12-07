@@ -8,6 +8,7 @@ import com.company.ms.helper.UUIDGen;
 import com.company.ms.repositories.TransactionRepository;
 import com.company.ms.types.OperationType;
 import com.company.ms.userapi.message.Amount;
+import com.company.ms.userapi.message.PaymentData;
 import com.company.ms.userapi.message.TransactionData;
 
 public class Helper {
@@ -72,5 +73,20 @@ public class Helper {
 		transaction.setEventDate(timestamp);
 		return transaction;
 	}
+
+	public static PaymentData[] generateRandomPaymentDataArray(int size) {
+		PaymentData[] paymentData = new PaymentData[size];
+		for(int i=0;i<size;i++) {
+			paymentData[i] = generateRandomPaymentData();
+		}
+		return paymentData;
+	}
+	
+	public static PaymentData generateRandomPaymentData() {
+		PaymentData paymentData = new PaymentData();
+		paymentData.setAccount_id(UUIDGen.getUUID());
+		paymentData.setAmount(new Amount(generateRandomDouble(1.0, 1000.0)));
+		return paymentData;
+	}	
 
 }
