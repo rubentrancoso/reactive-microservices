@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@Data
+	@Data
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor

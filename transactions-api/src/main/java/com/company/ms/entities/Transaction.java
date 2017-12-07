@@ -8,15 +8,17 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import com.company.ms.helper.UUIDGen;
-import com.company.ms.types.PaymentType;
+import com.company.ms.types.OperationType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Table
+@NoArgsConstructor
 @JsonInclude(content = Include.NON_NULL, value = Include.NON_NULL)
 public class Transaction {
 
@@ -44,7 +46,7 @@ public class Transaction {
 		this.transactionId = transactionId;
 		this.accountId = accountId;
 		this.operationTypeId = operationTypeId;
-		this.chargeOrder = PaymentType.getPaymentType(operationTypeId).chargeOrder();
+		this.chargeOrder = OperationType.getOperationType(operationTypeId).chargeOrder();
 		this.amount = amount;
 		this.balance = balance;
 	}

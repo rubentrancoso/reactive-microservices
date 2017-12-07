@@ -20,3 +20,10 @@ CREATE TABLE paymenttracking (
    created timestamp
 );
 
+CREATE TABLE payment (
+   paymentId text PRIMARY KEY,
+   accountId text,
+   amount double,
+   eventdate timestamp
+);
+
