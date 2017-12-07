@@ -1,23 +1,14 @@
 package com.company.ms.userapi.message;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Amount {
 	
 	private Double amount;
-	
-	public Amount() {}
-
-	public Amount(Double amount) {
-		this.amount = amount;
-	}
-	
-	public Double getAmount() {
-		return amount;
-	}
-
-	public void setAmount(Double amount) {
-		this.amount = amount;
-	}
-
-	
 	
 }
