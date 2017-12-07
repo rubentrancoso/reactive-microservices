@@ -2,7 +2,6 @@ package com.company.ms.userapi.endpoints;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +27,11 @@ public class TransactionController {
 
 	private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
 
-	@Autowired
 	TransactionService transactionService;	
+	
+	TransactionController(TransactionService _transactionService) {
+		transactionService = _transactionService;
+	}
 	
 	@RequestMapping(path = "/transactions", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Mono<Transaction> addSingleTransaction(@RequestBody TransactionData transactionData) {
@@ -39,7 +41,7 @@ public class TransactionController {
 
 	@RequestMapping(path = "/transactionsgroup", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
 	public @ResponseBody void addTransactionArray(@RequestBody TransactionData[] transactionsData) {
-		logger.info(String.format("post /transactions: %s", Json.prettyPrint(transactionsData)));
+		logger.info(String.format("post /transactionsgroup: %s", Json.prettyPrint(transactionsData)));
 		transactionService.addTransactionGroup(transactionsData);
 	}
 	

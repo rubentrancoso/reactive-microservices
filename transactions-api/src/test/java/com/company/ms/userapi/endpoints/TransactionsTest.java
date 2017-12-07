@@ -2,6 +2,7 @@ package com.company.ms.userapi.endpoints;
 
 import static org.assertj.core.api.BDDAssertions.then;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -23,11 +24,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import com.company.ms.entities.Transaction;
+import com.company.ms.helper.Json;
 import com.company.ms.repositories.PaymentRepository;
 import com.company.ms.repositories.PaymentTrackingRepository;
 import com.company.ms.repositories.TransactionRepository;
 import com.company.ms.transactions.Application;
 import com.company.ms.userapi.message.TransactionData;
+
+import reactor.core.publisher.Flux;
 
 
 @RunWith(SpringRunner.class)
@@ -83,31 +87,21 @@ public class TransactionsTest {
 		then(Helper.compareTransaction2TransactionData(transaction, transactionData));
 	}	
 	
-//	@RequestMapping(path = "/transactionsgroup", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-//	public @ResponseBody void addTransactionArray(@RequestBody TransactionData[] transactionsData) {
-//		logger.info(String.format("post /transactions: %s", Json.prettyPrint(transactionsData)));
-//		transactionService.addTransactionGroup(transactionsData);
-//	}
-	
 	@Test
 	public void shouldAddAnTransactionArray() throws Exception {
 		// Create account Data
-		TransactionData[] transactionData = Helper.generateRandomTransactionDataArray(10);
+		TransactionData[] transactionsData = Helper.generateRandomTransactionDataArray(10);
+
 		// Call endpoint
 		webTestClient.post()
-        	.uri("/transactions")
-        	.body(BodyInserters.fromObject(transactionData));
+        	.uri("/transactionsgroup")
+        	.accept(MediaType.APPLICATION_STREAM_JSON)
+        	.body(BodyInserters.fromObject(transactionsData))
+        	.exchange();
 		
-//        	.accept(MediaType.TEXT_EVENT_STREAM)
-//        	.exchange()
-//        	.expectStatus().isOk()
-//        	.expectHeader().contentType(MediaType.TEXT_EVENT_STREAM);
-		//		.expectBodyList(Account.class).isEqualTo(expectedAccounts);
-		//  .expectBodyList(Account.class).isEqualTo(expectedAccounts);
-		
-		//restTemplate.postForObject("/transactions", transactionData, Object.class);
-		// Verify values
-		//	then(Helper.compareTransaction2TransactionData(transaction, transactionData));
+		List<Transaction> result = transactionRepository.findAll().collectList().block();
+		List<TransactionData> expected = Arrays.asList(transactionsData);
+		// TODO: assert
 	}	
 	
 //	@RequestMapping(path = "/transactions/{account_id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)

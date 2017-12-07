@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.cassandra.core.ReactiveCassandraTemplate;
 import org.springframework.stereotype.Service;
 
@@ -24,14 +23,17 @@ public class TransactionService {
 
 	private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
-	@Autowired
 	ReactiveCassandraTemplate template;
-	@Autowired
 	PaymentRepository paymentRepository;
-	@Autowired
 	PaymentTrackingRepository paymentTrackingRepository;
-	@Autowired
 	TransactionRepository transactionRepository;
+	
+	TransactionService(ReactiveCassandraTemplate _template, PaymentRepository _paymentRepository, PaymentTrackingRepository _paymentTrackingRepository, TransactionRepository _transactionRepository ) {
+		template = _template;
+		paymentRepository = _paymentRepository;
+		paymentTrackingRepository = _paymentTrackingRepository;
+		transactionRepository = _transactionRepository;
+	}
 
 	public Mono<Transaction> addSingleTransaction(TransactionData transactionData) {
 		logger.info(String.format("performing transaction: %s", transactionData.toString()));
@@ -86,7 +88,7 @@ public class TransactionService {
 		transactionRepository.findByAccountOrderByEvent(payment.getAccountId()).map(transaction -> {
 			Double balance = transaction.getBalance();
 			if (amount > 0.0 && balance < 0) {
-				Double reminder = balance % amount;
+				//Double reminder = balance % amount;
 				transaction.setBalance(balance);
 			}
 			logger.info("transaction = " + transaction.toString());
@@ -100,12 +102,14 @@ public class TransactionService {
 	}
 
 	public void addTransactionGroup(TransactionData[] transactionsData) {
+		logger.info("addTransactionGroup");
+		
+		// save transaction group
 		Flux.fromArray(transactionsData)
-				// process transactions
-				.map(transactionData -> {
-					Transaction transaction = genTransactionObj(transactionData);
-					return transactionRepository.save(transaction);
-				});
+		.flatMap(transactionData -> {
+			Transaction transaction = genTransactionObj(transactionData);
+			return transactionRepository.save(transaction);
+		}).subscribe();
 	}
 
 	private Transaction genTransactionObj(TransactionData transactionData) {

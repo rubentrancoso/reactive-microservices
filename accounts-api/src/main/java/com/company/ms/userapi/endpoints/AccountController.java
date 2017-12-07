@@ -2,7 +2,6 @@ package com.company.ms.userapi.endpoints;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +25,11 @@ public class AccountController {
 
 	private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
-	@Autowired
 	AccountService accountService;
+	
+	AccountController(AccountService _accountService) {
+		accountService = _accountService;
+	}
 
 	@RequestMapping(path = "/accounts/limits", method = RequestMethod.GET, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public @ResponseBody Flux<Account> limits() {

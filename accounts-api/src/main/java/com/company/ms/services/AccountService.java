@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.company.ms.entities.Account;
@@ -19,9 +18,12 @@ public class AccountService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
 	
-	@Autowired
 	private AccountRepository accountRepository;
 
+	AccountService(AccountRepository _accountRepository) {
+		accountRepository = _accountRepository;
+	}
+	
 	public Mono<Account> create(AccountData accountData) {
 		if (accountData == null || accountData.getAvailable_credit_limit().equals(null)
 				|| accountData.getAvailable_withdrawal_limit().equals(null)) {
