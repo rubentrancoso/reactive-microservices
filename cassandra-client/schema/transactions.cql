@@ -7,7 +7,7 @@ CREATE TABLE transaction (
    balance double,
    eventDate timestamp,
    dueDate timestamp,
-   PRIMARY KEY(accountId, chargeOrder, eventDate, transactionId)
+   PRIMARY KEY(accountId, chargeOrder, eventDate)
 );
 
 CREATE TABLE paymenttracking (
