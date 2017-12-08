@@ -87,6 +87,15 @@ public class Helper {
 		paymentData.setAccount_id(UUIDGen.getUUID());
 		paymentData.setAmount(new Amount(generateRandomDouble(1.0, 1000.0)));
 		return paymentData;
+	}
+
+	public static TransactionData[] generateRandomTransactionDataArray(String accountId, int size) {
+		TransactionData[] transactionData = new TransactionData[size];
+		for(int i=0;i<size;i++) {
+			transactionData[i] = generateRandomTransactionData();
+			transactionData[i].setAccount_id(accountId);
+		}
+		return transactionData;
 	}	
 
 }

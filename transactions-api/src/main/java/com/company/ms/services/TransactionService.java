@@ -53,17 +53,15 @@ public class TransactionService {
 
 	public void addPayment(PaymentData[] paymentsData) {
 		Flux.fromArray(paymentsData)
-				// save payment
-				.map(paymentData -> {
+				.flatMap(paymentData -> {
 					Payment payment = genPaymentObj(paymentData);
-					paymentRepository.save(payment);
-					return payment;
-				})
-				// update balance
-				.map(payment -> {
-					updateBalance(payment);
-					return payment;
+					return paymentRepository.save(payment);
 				}).subscribe();
+//				// update balance
+//				.map(payment -> {
+//					updateBalance(payment);
+//					return payment;
+//				}).subscribe();
 	}
 
 	private Payment genPaymentObj(PaymentData paymentData) {

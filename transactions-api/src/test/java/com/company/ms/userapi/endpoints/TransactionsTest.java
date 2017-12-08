@@ -24,10 +24,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.reactive.server.WebTestClient.ListBodySpec;
 import org.springframework.web.reactive.function.BodyInserters;
 
 import com.company.ms.entities.Payment;
 import com.company.ms.entities.Transaction;
+import com.company.ms.helper.UUIDGen;
 import com.company.ms.repositories.PaymentRepository;
 import com.company.ms.repositories.PaymentTrackingRepository;
 import com.company.ms.repositories.TransactionRepository;
@@ -71,7 +73,7 @@ public class TransactionsTest {
 		//expectedAccounts = accountRepository.findAll().collectList().block();
 	}
 		
-	@Test
+	//@Test
 	public void shouldReturn200WhenSendingRequestToController() throws Exception {
 		@SuppressWarnings("rawtypes")
 		ResponseEntity<Map> entity = restTemplate.getForEntity("http://localhost:" + this.port + "/hello", Map.class);
@@ -107,6 +109,7 @@ public class TransactionsTest {
         	.exchange();
 		
 		List<Transaction> result = transactionRepository.findAll().collectList().block();
+		assertTrue(result.size() == transactionsData.length);
 		for (Iterator<Transaction> iterator = result.iterator(); iterator.hasNext();) {
 			Transaction result_transaction = (Transaction) iterator.next();
 			TransactionData expected_item;
@@ -135,6 +138,7 @@ public class TransactionsTest {
         	.exchange();
 		
 		List<Payment> result = paymentRepository.findAll().collectList().block();
+		assertTrue(result.size() == paymentsData.length);
 		for (Iterator<Payment> iterator = result.iterator(); iterator.hasNext();) {
 			Payment result_payment = (Payment) iterator.next();
 			PaymentData expected_item;
@@ -144,19 +148,34 @@ public class TransactionsTest {
 		}
 	}	
 	
-	
-	
-//	@RequestMapping(path = "/transactions/{account_id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-//	public @ResponseBody Flux<Transaction> listTransactionsFromAccount(@PathVariable("account_id") String account_id) {
-//		logger.info(String.format("get /transactions"));
-//		return transactionService.listTransactionsFromAccount(account_id);
-//	}
-//
-	
 	@Test
 	public void shouldReturnAllTransationsForAGivenAccount() throws Exception {
 		logger.info("shouldReturnAllTransationsForAGivenAccount");
+		// Create transactions Data
+		String accountId = UUIDGen.getUUID();
+		TransactionData[] transactionsData = Helper.generateRandomTransactionDataArray(accountId, 10);
+		Map<String,TransactionData> expected_array = new HashMap<String, TransactionData>();
+		for(TransactionData transactionData: transactionsData) {
+			expected_array.put(transactionData.getAccount_id(), transactionData);
+		}
 
+		// Insert Transactions
+		webTestClient.post()
+        	.uri("/transactionsgroup")
+        	.accept(MediaType.APPLICATION_STREAM_JSON)
+        	.body(BodyInserters.fromObject(transactionsData))
+        	.exchange();
+				
+		// Get Transactions for account
+		ListBodySpec<Transaction> get_response = webTestClient.get()
+        	.uri(String.format("/transactions/%s",accountId))
+        	.accept(MediaType.APPLICATION_STREAM_JSON)
+        	.exchange()
+        	.expectBodyList(Transaction.class);
+		
+		List<Transaction> response_list = get_response.returnResult().getResponseBody();
+		List<Transaction> db_list = transactionRepository.findByAccountOrderByEvent(accountId).collectList().block();
+		assertTrue(response_list.equals(db_list));
 	}
 
 
