@@ -27,13 +27,12 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ListBodySpec;
 import org.springframework.web.reactive.function.BodyInserters;
 
-import com.company.ms.entities.Payment;
 import com.company.ms.entities.Transaction;
 import com.company.ms.helper.UUIDGen;
-import com.company.ms.repositories.PaymentRepository;
 import com.company.ms.repositories.PaymentTrackingRepository;
 import com.company.ms.repositories.TransactionRepository;
 import com.company.ms.transactions.Application;
+import com.company.ms.types.OperationType;
 import com.company.ms.userapi.message.PaymentData;
 import com.company.ms.userapi.message.TransactionData;
 
@@ -54,9 +53,6 @@ public class TransactionsTest {
     List<Transaction> expectedTransactions;	
 	
 	@Autowired
-	private PaymentRepository paymentRepository;
-	
-	@Autowired
 	private PaymentTrackingRepository paymentrackingRepository;
 	
 	@Autowired
@@ -66,7 +62,6 @@ public class TransactionsTest {
 	@Before
 	public void setup() {
 		webTestClient = WebTestClient.bindToServer().baseUrl("http://localhost:" + this.port).build();
-		paymentRepository.deleteAll().block();
 		paymentrackingRepository.deleteAll().block();
 		transactionRepository.deleteAll().block();
 		//Helper.insertRandomAccounts(accountRepository, 10);
@@ -84,7 +79,7 @@ public class TransactionsTest {
 	@Test
 	public void shouldCreateAnTransaction() throws Exception {
 		// Create account Data
-		TransactionData transactionData = Helper.generateRandomTransactionData();
+		TransactionData transactionData = Helper.generateRandomTransactionData(true);
 		// Call endpoint
 		Transaction transaction = restTemplate.postForObject("/transactions", transactionData, Transaction.class);
 		// Verify values
@@ -115,8 +110,8 @@ public class TransactionsTest {
 			TransactionData expected_item;
 			assertNotNull(expected_item = expected_array.get(result_transaction.getAccountId()));
 			assertTrue(expected_item.getAccount_id().equals(result_transaction.getAccountId()));
-			assertTrue(expected_item.getAmount().getAmount().equals(result_transaction.getAmount()));
 			assertTrue(expected_item.getOperation_type_id() == result_transaction.getOperationTypeId());
+			assertTrue(expected_item.getAmount().equals(result_transaction.getAmount()));
 		}
 	}	
 	
@@ -137,15 +132,15 @@ public class TransactionsTest {
         	.body(BodyInserters.fromObject(paymentsData))
         	.exchange();
 		
-		List<Payment> result = paymentRepository.findAll().collectList().block();
-		assertTrue(result.size() == paymentsData.length);
-		for (Iterator<Payment> iterator = result.iterator(); iterator.hasNext();) {
-			Payment result_payment = (Payment) iterator.next();
-			PaymentData expected_item;
-			assertNotNull(expected_item = expected_array.get(result_payment.getAccountId()));
-			assertTrue(expected_item.getAccount_id().equals(result_payment.getAccountId()));
-			assertTrue(expected_item.getAmount().getAmount().equals(result_payment.getAmount()));
-		}
+//		List<Payment> result = paymentRepository.findAll().collectList().block();
+//		assertTrue(result.size() == paymentsData.length);
+//		for (Iterator<Payment> iterator = result.iterator(); iterator.hasNext();) {
+//			Payment result_payment = (Payment) iterator.next();
+//			PaymentData expected_item;
+//			assertNotNull(expected_item = expected_array.get(result_payment.getAccountId()));
+//			assertTrue(expected_item.getAccount_id().equals(result_payment.getAccountId()));
+//			assertTrue(expected_item.getAmount().equals(result_payment.getAmount()));
+//		}
 	}	
 	
 	@Test
@@ -156,6 +151,9 @@ public class TransactionsTest {
 		TransactionData[] transactionsData = Helper.generateRandomTransactionDataArray(accountId, 10);
 		Map<String,TransactionData> expected_array = new HashMap<String, TransactionData>();
 		for(TransactionData transactionData: transactionsData) {
+			if(transactionData.getOperation_type_id() != OperationType.PAGAMENTO.operationType()) {
+				transactionData.setAmount(-transactionData.getAmount());
+			}
 			expected_array.put(transactionData.getAccount_id(), transactionData);
 		}
 
@@ -174,7 +172,7 @@ public class TransactionsTest {
         	.expectBodyList(Transaction.class);
 		
 		List<Transaction> response_list = get_response.returnResult().getResponseBody();
-		List<Transaction> db_list = transactionRepository.findByAccountOrderByEvent(accountId).collectList().block();
+		List<Transaction> db_list = transactionRepository.findByAccountId(accountId).collectList().block();
 		assertTrue(response_list.equals(db_list));
 	}
 

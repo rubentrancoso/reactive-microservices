@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 public class PaymentData {
 
 	private String account_id;
-	private Amount amount;
+	private Double amount;
 	
 }

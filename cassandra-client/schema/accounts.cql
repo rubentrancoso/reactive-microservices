@@ -1,5 +1,5 @@
-CREATE TABLE account (
-   accountId text PRIMARY KEY,
+CREATE COLUMNFAMILY account (
+   accountId varchar PRIMARY KEY,
    availableCreditLimit double,
    availableWithdrawalLimit double,
    created timestamp,

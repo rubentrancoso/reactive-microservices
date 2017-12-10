@@ -12,15 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.company.ms.entities.Transaction;
 import com.company.ms.helper.Json;
 import com.company.ms.services.TransactionService;
 import com.company.ms.userapi.message.Message;
 import com.company.ms.userapi.message.PaymentData;
 import com.company.ms.userapi.message.TransactionData;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Controller
 public class TransactionController {
@@ -34,33 +30,86 @@ public class TransactionController {
 	}
 	
 	@RequestMapping(path = "/transactions", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody Mono<Transaction> addSingleTransaction(@RequestBody TransactionData transactionData) {
+	public @ResponseBody ResponseEntity<?> addSingleTransaction(@RequestBody TransactionData transactionData) {
 		logger.info(String.format("post /transactions: %s", transactionData.toString()));
-		return transactionService.addSingleTransaction(transactionData);
+		HttpStatus responseCode = HttpStatus.OK;
+		Object response;
+		try {
+			response = transactionService.addSingleTransaction(transactionData);
+		} catch (Exception e) {
+			responseCode = HttpStatus.BAD_REQUEST;
+			response = new Message(e.getMessage());
+		}
+		return new ResponseEntity<Object>(response, responseCode);
 	}
 
 	@RequestMapping(path = "/transactionsgroup", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-	public @ResponseBody void addTransactionArray(@RequestBody TransactionData[] transactionsData) {
+	public @ResponseBody ResponseEntity<?> addTransactionArray(@RequestBody TransactionData[] transactionsData) {
 		logger.info(String.format("post /transactionsgroup: %s", Json.prettyPrint(transactionsData)));
-		transactionService.addTransactionGroup(transactionsData);
+		HttpStatus responseCode = HttpStatus.OK;
+		Object response = new Message("Success");
+		try {
+			transactionService.addTransactionGroup(transactionsData);
+		} catch (Exception e) {
+			responseCode = HttpStatus.BAD_REQUEST;
+			response = new Message(e.getMessage());
+		}
+		return new ResponseEntity<Object>(response, responseCode);		
 	}
 	
 	@RequestMapping(path = "/transactions/{account_id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-	public @ResponseBody Flux<Transaction> listTransactionsFromAccount(@PathVariable("account_id") String account_id) {
+	public @ResponseBody ResponseEntity<?> listTransactionsFromAccount(@PathVariable("account_id") String account_id) {
 		logger.info(String.format("get /transactions"));
-		return transactionService.listTransactionsFromAccount(account_id);
+		HttpStatus responseCode = HttpStatus.OK;
+		Object response = new Message("Success");
+		try {
+			response = transactionService.listTransactionsFromAccount(account_id);
+		} catch (Exception e) {
+			responseCode = HttpStatus.BAD_REQUEST;
+			response = new Message(e.getMessage());
+		}
+		return new ResponseEntity<Object>(response, responseCode);		
 	}
 
 	@RequestMapping(path = "/payments", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-	public @ResponseBody void addPayments(@RequestBody PaymentData[] paymentData) {
+	public @ResponseBody ResponseEntity<?> addPayments(@RequestBody PaymentData[] paymentData) {
 		logger.info(String.format("post /payments: %s", Json.prettyPrint(paymentData)));
-		transactionService.addPayment(paymentData);
+		HttpStatus responseCode = HttpStatus.OK;
+		Object response = new Message("Success");
+		try {
+			transactionService.addPayments(paymentData);
+		} catch (Exception e) {
+			responseCode = HttpStatus.BAD_REQUEST;
+			response = new Message(e.getMessage());
+		}
+		return new ResponseEntity<Object>(response, responseCode);		
 	}	
 
 	@RequestMapping(path = "/hello", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody Object hello() {
+	public @ResponseBody ResponseEntity<?> hello() {
 		HttpStatus responseCode = HttpStatus.OK;
-		return new ResponseEntity<Object>(new Message("transactions-api hello"), responseCode);
+		Object response;
+		try {
+			response = new Message("transactions-api hello");
+		} catch (Exception e) {
+			responseCode = HttpStatus.BAD_REQUEST;
+			response = new Message(e.getMessage());
+		}
+		return new ResponseEntity<Object>(response, responseCode);			
+	}
+	
+	@RequestMapping(path = "/payments/{account_id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+	public @ResponseBody ResponseEntity<?> listPaymentTransactionsFromAccount(@PathVariable("account_id") String account_id) {
+		logger.info(String.format("get /payments/{account_id}"));
+		HttpStatus responseCode = HttpStatus.OK;
+		Object response = new Message("Success");
+		try {
+			response = transactionService.listPaymentTransactionsFromAccount(account_id);
+		} catch (Exception e) {
+			responseCode = HttpStatus.BAD_REQUEST;
+			response = new Message(e.getMessage());
+		}
+		return new ResponseEntity<Object>(response, responseCode);		
 	}
 
 }

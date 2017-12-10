@@ -8,8 +8,9 @@ import com.company.ms.entities.Transaction;
 import reactor.core.publisher.Flux;
 
 public interface TransactionRepository extends ReactiveCrudRepository<Transaction, String> {
-	
-	@Query("SELECT * FROM transaction WHERE accountid = ?0 ORDER BY chargeorder asc")
-	Flux<Transaction> findByAccountOrderByEvent(String acoountId);
+
+	@Query("SELECT * FROM transaction WHERE accountid = ?0")
+	Flux<Transaction> findByAccountId(String accountId);
+
 	
 }

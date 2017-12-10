@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Table
 @NoArgsConstructor
 @JsonInclude(content = Include.NON_NULL, value = Include.NON_NULL)
-public class Transaction {
+public class TransactionOrder {
 
 	@Id
 	private String transactionId;
@@ -39,7 +39,7 @@ public class Transaction {
 	@JsonFormat(pattern = "EEE yyyy-MM-dd HH:mm:ss.SSSZ")
 	private Date dueDate;
 
-	public Transaction(String transactionId, String accountId, int operationTypeId, Double amount, Double balance) {
+	public TransactionOrder(String transactionId, String accountId, int operationTypeId, Double amount, Double balance) {
 		this.transactionId = transactionId;
 		this.accountId = accountId;
 		this.operationTypeId = operationTypeId;
@@ -48,12 +48,12 @@ public class Transaction {
 		this.balance = balance;
 	}
 	
-	public static Transaction newTransaction( String accountId, int operationTypeId, Double amount, Double balance ) {
+	public static TransactionOrder newTransaction( String accountId, int operationTypeId, Double amount, Double balance ) {
 		return newTransaction(UUIDGen.getUUID(), accountId, operationTypeId, amount, balance);
 	}
 
-	protected static Transaction newTransaction(String transactionId, String accountId, int operationTypeId, Double amount, Double balance) {
-		return new Transaction(transactionId, accountId, operationTypeId, amount, balance);
+	protected static TransactionOrder newTransaction(String transactionId, String accountId, int operationTypeId, Double amount, Double balance) {
+		return new TransactionOrder(transactionId, accountId, operationTypeId, amount, balance);
 	}
 
 }

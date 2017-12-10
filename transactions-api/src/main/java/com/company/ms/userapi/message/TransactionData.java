@@ -15,6 +15,6 @@ public class TransactionData {
 
 	private String account_id;
 	private int operation_type_id;
-	private Amount amount;
+	private Double amount;
 	
 }
