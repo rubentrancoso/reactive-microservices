@@ -38,16 +38,10 @@ public class TransactionService {
 	public Mono<Transaction> addSingleTransaction(TransactionData transactionData) throws Exception {
 		logger.info(String.format("performing transaction: %s", transactionData.toString()));
 
-//		if (transactionData == null || transactionData.getAmount().equals(null)) {
-//			throw new Exception("Error invalid transaction");
-//		}
-//		if(transactionData.getOperation_type_id()==OperationType.PAGAMENTO.operationType()) {
-//			throw new Exception(String.format("Error [%s](%d) invalid ENDPOINT for PAYMENT",OperationType.PAGAMENTO.description(), OperationType.PAGAMENTO.operationType(), transactionData.getAmount(), transactionData.getAccount_id()));
-//		}
-
 		validateTransactionValueByType(transactionData);
 		Transaction transaction = Helper.genTransactionObj(transactionData);
 		return transactionRepository.save(transaction);
+		// TODO: abater o valor  do limite
 	}
 	
 	private void validateTransactionValueByType(TransactionData transactionData) throws Exception {
@@ -76,6 +70,7 @@ public class TransactionService {
 		}		
 		// Add payment transactions
 		insertPayments(paymentsData);
+
 		// TODO: Update Accounts Limit
 		
 		// Consolidate accounts
@@ -84,14 +79,66 @@ public class TransactionService {
 	
 	private void consolidateAccounts(Set<String> accounts) {
 		Flux<String> accountToConsolidate = Flux.fromIterable(accounts);
-		accountToConsolidate.map(accountId->consolidate(accountId));
+		accountToConsolidate.map(accountId->consolidate(accountId)).subscribe();
 	}
 
 	private String consolidate(String accountId) {
-		// TODO: pegar o credito acumulado de todos os pagamentos não negativos por ordem
-		// TODO: pagar os debitos
-		// TODO: atualizar o balanco dos pagamentos utilizados
+		// reunir o credito acumulado de todos os pagamentos não negativos por ordem
+		gatherAvailableCredit(accountId)
+		.map(credit_value->{
+			// pagar os debitos e obter o montante pago
+			updateBalanceAgainstPayment(accountId, credit_value)
+			// atualizar com o montante pago o balanco dos pagamentos utilizados distribuindo a partir do mais antigo
+			.map(payedAmount->{
+					updatePayments(accountId, payedAmount);
+					return payedAmount;
+			})
+			.subscribe();
+			return credit_value;
+		})
+		.subscribe();
 		return accountId;
+	}
+	
+	private void updatePayments(String accountId, Double payedAmount) {
+		Flux<Transaction> payments = transactionRepository.findAllPayments(accountId);
+		payments
+			.filter(payment->{
+				return payment.getBalance()>0;
+			})
+			.scan(payedAmount, new UpdatePayments())
+			.subscribe();
+	}
+
+	private class UpdatePayments implements BiFunction<Double, Transaction, Double> {
+		@Override
+		public Double apply(Double payedAmount, Transaction payment) {
+			Double payment_balance = payment.getBalance();
+			if(payment_balance>0 && payedAmount > 0.0) {
+				// debit is greater than available payment
+				if(payment_balance >= payedAmount) {
+					payment_balance -= payedAmount;
+					payedAmount = 0.0;
+				// debit is lower than available payment
+				} else {
+					payedAmount -= payment_balance;
+					payment_balance = 0.0;
+				}
+				payment.setBalance(payment_balance);
+				transactionRepository.save(payment).subscribe();
+			}
+			return payedAmount;
+		}
+	}
+	
+	private Mono<Double> gatherAvailableCredit(String accountId) {
+		Flux<Transaction> payments = getPaymentsByWithPositiveBalance(accountId);
+		return payments
+			.filter(transaction->{
+				return transaction.getBalance()>0;
+			})
+			.scan(0.0, new GatherCredit())
+			.last();
 	}
 	
 	private void insertPayments(PaymentData[] paymentsData) {
@@ -114,38 +161,43 @@ public class TransactionService {
 	// return paymentTracking;
 	// }
 
-	private void updateBalanceAgainstPayment(Transaction transaction) {
-		Double payment_reminder = transaction.getAmount();
-		Flux<Transaction> transactions = transactionRepository.findByAccountId(transaction.getAccountId());
+	private Mono<Double> updateBalanceAgainstPayment(String accountId, Double credit) {
+		Flux<Transaction> transactions = transactionRepository.findByAccountId(accountId);
 		UpdateBalanceAgainstPaymentAccumulator accumulate = new UpdateBalanceAgainstPaymentAccumulator();
-		transactions
+		return transactions
 			.filter(transaction_to_filter->transaction_to_filter.getOperationTypeId()!=4 && transaction_to_filter.getBalance() > 0)
-			.scan(payment_reminder, accumulate)
-			//.doOnComplete(onComplete)
-			.subscribe();
+			.scan(credit, accumulate)
+			.last().map(reminder->credit-reminder);
+	}
+
+	private class GatherCredit implements BiFunction<Double, Transaction, Double> {
+		@Override
+		public Double apply(Double credit, Transaction transaction) {
+			credit += transaction.getBalance();
+			return credit;
+		}
 	}
 	
 	private class UpdateBalanceAgainstPaymentAccumulator implements BiFunction<Double, Transaction, Double> {
-
 		@Override
-		public Double apply(Double payment_reminder, Transaction transaction) {
+		public Double apply(Double credit, Transaction transaction) {
 			Double transaction_balance = transaction.getBalance();
 			// theres money and theres debit to reedem
-			if (transaction_balance > 0 && payment_reminder > 0.0) {
+			if (transaction_balance > 0 && credit > 0.0) {
 				// debit is greater than available payment
-				if(transaction_balance >= payment_reminder) {
-					transaction_balance -= payment_reminder;
-					payment_reminder = 0.0;
+				if(transaction_balance >= credit) {
+					transaction_balance -= credit;
+					credit = 0.0;
 				// debit is lower than available payment
 				} else {
-					payment_reminder -= transaction_balance;
+					credit -= transaction_balance;
 					transaction_balance = 0.0;
 				}
 				transaction.setBalance(transaction_balance);
 				transactionRepository.save(transaction).subscribe();
 			}
 			logger.info("transaction = " + transaction.toString());
-			return payment_reminder;
+			return credit;
 		}
 	}
 
@@ -175,6 +227,15 @@ public class TransactionService {
 	}
 
 	public Object listPaymentTransactionsFromAccount(String account_id) {
+		return getPaymentsByAccount(account_id);
+	}
+	
+	private Flux<Transaction> getPaymentsByWithPositiveBalance(String account_id) {
+		Flux<Transaction> result = transactionRepository.findAllPayments(account_id);
+		return result;
+	}
+
+	private Flux<Transaction> getPaymentsByAccount(String account_id) {
 		Flux<Transaction> result = transactionRepository
 				.findByAccountId(account_id)
 				.filter(t->t.getOperationTypeId() == OperationType.PAGAMENTO.operationType());

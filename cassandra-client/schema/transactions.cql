@@ -7,21 +7,26 @@ CREATE COLUMNFAMILY transaction (
    balance double,
    eventDate timestamp,
    dueDate timestamp,
-   PRIMARY KEY( accountId, eventDate, chargeOrder)
+   PRIMARY KEY( accountId, eventDate, chargeOrder, operationTypeId)
 );
 
-CREATE MATERIALIZED VIEW transactionorder AS
+CREATE MATERIALIZED VIEW transactionbychargeorder AS
 SELECT * FROM transaction
   WHERE 
-    accountId IS NOT NULL AND
-  	transactionId IS NOT NULL AND 
-  	operationTypeId IS NOT NULL AND
   	chargeOrder IS NOT NULL AND
-  	eventDate IS NOT NULL
-PRIMARY KEY(accountId, chargeOrder, eventDate, operationtypeid)
+  	eventDate IS NOT NULL AND
+  	operationTypeId IS NOT NULL
+PRIMARY KEY(accountId, chargeOrder, eventDate, operationTypeId)
 WITH CLUSTERING ORDER BY (chargeOrder ASC, eventDate ASC);
 
-CREATE INDEX chargeOrder ON transaction (chargeOrder);
+CREATE MATERIALIZED VIEW payment AS
+SELECT * FROM transaction
+  WHERE 
+  	chargeOrder IS NOT NULL AND
+  	eventDate IS NOT NULL AND
+  	operationTypeId=4
+PRIMARY KEY(accountId, eventDate, operationTypeId, chargeOrder)
+WITH CLUSTERING ORDER BY (eventDate ASC, operationTypeId DESC);
 
 CREATE COLUMNFAMILY paymenttracking (
    paymentTrackintId varchar PRIMARY KEY,

@@ -12,5 +12,11 @@ public interface TransactionRepository extends ReactiveCrudRepository<Transactio
 	@Query("SELECT * FROM transaction WHERE accountid = ?0")
 	Flux<Transaction> findByAccountId(String accountId);
 
+	@Query("SELECT * FROM payment WHERE accountid = ?0")
+	Flux<Transaction> findAllPayments(String account_id);
+
+	@Query("SELECT * FROM transactionbychargeorder WHERE accountid = ?0")
+	Flux<Transaction> findAByChargeOrder(String account_id);
+
 	
 }
