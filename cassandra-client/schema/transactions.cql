@@ -29,13 +29,19 @@ PRIMARY KEY(accountId, eventDate, operationTypeId, chargeOrder)
 WITH CLUSTERING ORDER BY (eventDate ASC, operationTypeId DESC);
 
 CREATE COLUMNFAMILY paymenttracking (
-   paymentTrackintId varchar PRIMARY KEY,
+   paymentTrackingtId varchar,
    amount double,
    creditTransactionId varchar,
    debitTransactionId varchar,
-   availableCreditLimit double,
-   availableWithdrawalLimit double,
-   created timestamp
+   eventDate timestamp,
+PRIMARY KEY(creditTransactionId, eventDate)
 );
 
+CREATE MATERIALIZED VIEW paymenttrackingevent AS
+SELECT * FROM paymenttracking
+  WHERE 
+  	creditTransactionId IS NOT NULL AND
+  	eventDate IS NOT NULL
+PRIMARY KEY(creditTransactionId, eventDate)
+WITH CLUSTERING ORDER BY (eventDate ASC);
 

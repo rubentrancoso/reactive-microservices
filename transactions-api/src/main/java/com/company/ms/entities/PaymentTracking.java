@@ -21,7 +21,7 @@ public class PaymentTracking {
 
 	@Id
 	@PrimaryKeyColumn(type = PrimaryKeyType.PARTITIONED, ordinal = 1)
-	private String paymentTrackintId;
+	private String paymentTrackingtId;
 	
 	private Double amount;
 	
@@ -33,7 +33,7 @@ public class PaymentTracking {
 	private Date eventDate;
 
 	public PaymentTracking(String paymentTrackId, String creditTransactionId, String debitTransactionId, Double amount) {
-		this.paymentTrackintId = paymentTrackId;
+		this.paymentTrackingtId = paymentTrackId;
 		this.creditTransactionId = creditTransactionId;
 		this.debitTransactionId = debitTransactionId;
 		this.amount = amount;

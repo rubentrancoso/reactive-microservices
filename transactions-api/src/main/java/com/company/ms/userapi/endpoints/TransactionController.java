@@ -111,5 +111,19 @@ public class TransactionController {
 		}
 		return new ResponseEntity<Object>(response, responseCode);		
 	}
+	
+	@RequestMapping(path = "/cleartables", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+	public @ResponseBody ResponseEntity<?> cleartables() {
+		logger.info(String.format("get /cleartables"));
+		HttpStatus responseCode = HttpStatus.OK;
+		Object response = new Message("Success");
+		try {
+			transactionService.cleartables();
+		} catch (Exception e) {
+			responseCode = HttpStatus.BAD_REQUEST;
+			response = new Message(e.getMessage());
+		}
+		return new ResponseEntity<Object>(response, responseCode);		
+	}	
 
 }
