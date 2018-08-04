@@ -10,14 +10,17 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.data.cassandra.CassandraDataAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Component;
 
 import com.company.ms.cassandra.CassandraClient;
 
-@EnableAutoConfiguration
+@EnableAutoConfiguration(exclude={CassandraDataAutoConfiguration.class})
 @ComponentScan(basePackages = { "com.company.ms" })
 public class Application {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationRunnerBean.class);
 
 	@Value("${cassandra.keyspaces}")
 	String keySpaces;
@@ -34,12 +37,27 @@ public class Application {
 	
 	@Component
 	public class ApplicationRunnerBean implements ApplicationRunner {
-		private final Logger logger = LoggerFactory.getLogger(ApplicationRunnerBean.class);
 
 		@Override
 		public void run(ApplicationArguments strArgs) throws Exception {
-			logger.info("Application started...");
-			cassandraClient.connect(contactPoints);
+			LOGGER.info("starting cassandra-client");
+			cassandraClient.startCassandra();
+			while(!cassandraClient.serverListening("localhost", 9042)) {
+				LOGGER.info("waiting for cassandra...");
+				Thread.sleep(2000);
+			};
+			LOGGER.info("port 9042 is open.");
+			boolean wait = true;
+			while(wait) {
+				try {
+					cassandraClient.connect(contactPoints);
+				} catch (Exception e) {
+					LOGGER.info("trying to connect (4s)...");;
+					Thread.sleep(4000);
+					continue;
+				}
+				wait = false;
+			}
 			cassandraClient.getSession();
 			String keyspaces[] = keySpaces.split(",");
 			for(String keyspace: keyspaces) {
@@ -47,6 +65,7 @@ public class Application {
 			}
 			cassandraClient.closeSession();
 			cassandraClient.close();
+			LOGGER.info("All done.");
 			System.exit(0);
 		}
 		

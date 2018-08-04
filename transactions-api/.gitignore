@@ -1,4 +1,1 @@
-bin
-build
-.gradle
-/out/
+/target/

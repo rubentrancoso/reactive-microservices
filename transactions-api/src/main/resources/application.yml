@@ -5,13 +5,9 @@ spring:
 server:
   port: 8081
 
-management:
-  server:
-    port: 9002
-  
 cassandra:
   contactpoints: localhost,127.0.0.1
-  port: 9043 
+  port: 9042 
   keyspace: transactions
   
 logging:
