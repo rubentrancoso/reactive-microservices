@@ -1,4 +1,4 @@
-package com.company.ms.userapi.endpoints;
+package com.company.ms.util;
 
 import java.sql.Timestamp;
 import java.util.Random;

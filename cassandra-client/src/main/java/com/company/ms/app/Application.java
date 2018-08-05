@@ -1,4 +1,4 @@
-package com.company.ms.client;
+package com.company.ms.app;
 
 import java.io.IOException;
 

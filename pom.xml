@@ -22,6 +22,7 @@
 		<module>cassandra-client</module>
 		<module>accounts-api</module>
 		<module>transactions-api</module>
+		<module>flux-generator</module>
 	</modules>
 
 	<properties>

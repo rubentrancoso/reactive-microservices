@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: flux-generator
+    
+server:
+  port: 8082
+
+logging:
+  config: config/log4j2-console.xml
+      
+      

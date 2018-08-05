@@ -70,4 +70,8 @@ public class AccountService {
 
 	}
 
+	public void cleartables() {
+		accountRepository.deleteAll().subscribe();
+	}
+
 }

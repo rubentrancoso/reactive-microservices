@@ -27,14 +27,15 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.test.web.reactive.server.WebTestClient.ListBodySpec;
 import org.springframework.web.reactive.function.BodyInserters;
 
+import com.company.ms.app.Application;
 import com.company.ms.entities.Transaction;
 import com.company.ms.helper.UUIDGen;
 import com.company.ms.repositories.PaymentTrackingRepository;
 import com.company.ms.repositories.TransactionRepository;
-import com.company.ms.transactions.Application;
 import com.company.ms.types.OperationType;
 import com.company.ms.userapi.message.PaymentData;
 import com.company.ms.userapi.message.TransactionData;
+import com.company.ms.util.Helper;
 
 
 @RunWith(SpringRunner.class)

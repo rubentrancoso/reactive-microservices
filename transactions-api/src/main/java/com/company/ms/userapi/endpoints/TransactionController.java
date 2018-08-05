@@ -93,7 +93,7 @@ public class TransactionController {
 			response = new Message("transactions-api hello");
 		} catch (Exception e) {
 			responseCode = HttpStatus.BAD_REQUEST;
-			response = new Message(e.getMessage());
+			response = new Message(e.getMessage()); 
 		}
 		return new ResponseEntity<Object>(response, responseCode);			
 	}

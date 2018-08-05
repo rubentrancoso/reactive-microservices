@@ -25,7 +25,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.ResourceAccessException;
 
-import com.company.ms.accounts.Application;
+import com.company.ms.app.Application;
 import com.company.ms.entities.Account;
 import com.company.ms.helper.Json;
 import com.company.ms.repositories.AccountRepository;

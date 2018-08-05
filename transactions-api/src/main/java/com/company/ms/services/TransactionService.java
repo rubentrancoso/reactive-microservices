@@ -13,9 +13,9 @@ import com.company.ms.entities.Transaction;
 import com.company.ms.repositories.PaymentTrackingRepository;
 import com.company.ms.repositories.TransactionRepository;
 import com.company.ms.types.OperationType;
-import com.company.ms.userapi.endpoints.Helper;
 import com.company.ms.userapi.message.PaymentData;
 import com.company.ms.userapi.message.TransactionData;
+import com.company.ms.util.Helper;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

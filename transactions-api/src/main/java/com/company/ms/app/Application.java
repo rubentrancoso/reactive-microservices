@@ -1,4 +1,4 @@
-package com.company.ms.transactions;
+package com.company.ms.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
