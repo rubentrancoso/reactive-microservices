@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class AccountService {
 
-	private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AccountService.class);
 	
 	private AccountRepository accountRepository;
 
@@ -36,28 +36,38 @@ public class AccountService {
 		Timestamp timestamp = new Timestamp(System.currentTimeMillis());
 		account.setCreated(timestamp);
 		account.setUpdated(timestamp);
-		return accountRepository.save(account);
+		LOGGER.info("creating account - {}", account);
+		return accountRepository.save(account)
+				.doOnSuccess( result -> LOGGER.info("account created - {}", result));
 	}
 
 	public Flux<Account> limits() {
 		return accountRepository.findAll();
 	}
 
-	public Mono<Account> update(String account_id, Mono<AccountData> accountData) {
-		logger.info("updating account...");
+	public Mono<Account> update(String account_id, Mono<AccountData> newData) {
 		return accountRepository.findById(account_id)
-			.flatMap(originaAccount -> { 
-				// update Account instance with new Values
-				accountData.map(newValues-> { 
-					originaAccount.setAvailableCreditLimit(Double.sum(originaAccount.getAvailableCreditLimit(),
-							newValues.getAvailable_credit_limit().getAmount()));
-					originaAccount.setAvailableWithdrawalLimit(Double.sum(originaAccount.getAvailableWithdrawalLimit(),
-							newValues.getAvailable_withdrawal_limit().getAmount()));
-					originaAccount.setUpdated(new Timestamp(System.currentTimeMillis()));
-					return originaAccount; 
-				}).subscribe();
-				return accountRepository.save(originaAccount);
+			.flatMap(currentAccount -> {
+				LOGGER.info("updating account - {}", currentAccount);
+				return newData.map(newValues-> { 
+					currentAccount.setAvailableCreditLimit(
+							Double.sum(
+									currentAccount.getAvailableCreditLimit(),
+									newValues.getAvailable_credit_limit().getAmount()
+							)
+					);
+					currentAccount.setAvailableWithdrawalLimit(
+							Double.sum(
+									currentAccount.getAvailableWithdrawalLimit(),
+									newValues.getAvailable_withdrawal_limit().getAmount()
+							)
+					);
+					currentAccount.setUpdated(new Timestamp(System.currentTimeMillis()));
+					return currentAccount; 
+				}).flatMap(accountRepository::save)
+						.doOnSuccess( result -> LOGGER.info("account uupdated - {}", result));
 			});
+
 	}
 
 }

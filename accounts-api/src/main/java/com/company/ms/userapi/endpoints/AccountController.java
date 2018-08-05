@@ -31,17 +31,20 @@ public class AccountController {
 		accountService = _accountService;
 	}
 
+	// get limits
 	@RequestMapping(path = "/accounts/limits", method = RequestMethod.GET, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public @ResponseBody Flux<Account> limits() {
 		logger.info(String.format("get /accounts/limits"));
 		return accountService.limits();
 	}	
 	
+	// update account
 	@RequestMapping(path = "/accounts/{account_id}", method = RequestMethod.PATCH, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Mono<Account> update(@PathVariable("account_id") String account_id, @RequestBody Mono<AccountData> accountData) {
 		return accountService.update(account_id, accountData);
 	}
 
+	// create account
 	@RequestMapping(path = "/accounts", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody Mono<Account> create(@RequestBody AccountData accountData) {
 		logger.info(String.format("post /register: limits[withdrawal=%1$,.1f,credit=%1$,.1f]", accountData.getAvailable_withdrawal_limit().getAmount(),accountData.getAvailable_credit_limit().getAmount()));
