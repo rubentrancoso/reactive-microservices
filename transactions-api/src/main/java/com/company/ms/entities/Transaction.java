@@ -27,6 +27,8 @@ public class Transaction {
 
 	private int operationTypeId;
 	
+	private String operationTypeDesc;
+	
 	private int chargeOrder;
 
 	private Double amount;
@@ -43,6 +45,7 @@ public class Transaction {
 		this.transactionId = transactionId;
 		this.accountId = accountId;
 		this.operationTypeId = operationTypeId;
+		this.operationTypeDesc = OperationType.getOperationType(operationTypeId).description();
 		this.chargeOrder = OperationType.getOperationType(operationTypeId).chargeOrder();
 		this.amount = amount;
 		this.balance = balance;

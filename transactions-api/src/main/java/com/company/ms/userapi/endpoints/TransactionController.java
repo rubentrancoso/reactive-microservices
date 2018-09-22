@@ -29,6 +29,12 @@ public class TransactionController {
 		transactionService = _transactionService;
 	}
 	
+	@RequestMapping(path = "/hello", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody Object hello() {
+		HttpStatus responseCode = HttpStatus.OK;
+		return new ResponseEntity<Object>(new Message("transactions-api hello"), responseCode);
+	}	
+	
 	@RequestMapping(path = "/transactions", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody ResponseEntity<?> addSingleTransaction(@RequestBody TransactionData transactionData) {
 		logger.info(String.format("post /transactions: %s", transactionData.toString()));
@@ -84,33 +90,20 @@ public class TransactionController {
 		}
 		return new ResponseEntity<Object>(response, responseCode);		
 	}	
-
-	@RequestMapping(path = "/hello", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-	public @ResponseBody ResponseEntity<?> hello() {
-		HttpStatus responseCode = HttpStatus.OK;
-		Object response;
-		try {
-			response = new Message("transactions-api hello");
-		} catch (Exception e) {
-			responseCode = HttpStatus.BAD_REQUEST;
-			response = new Message(e.getMessage()); 
-		}
-		return new ResponseEntity<Object>(response, responseCode);			
-	}
 	
-	@RequestMapping(path = "/payments/{account_id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
-	public @ResponseBody ResponseEntity<?> listPaymentTransactionsFromAccount(@PathVariable("account_id") String account_id) {
-		logger.info(String.format("get /payments/{account_id}"));
-		HttpStatus responseCode = HttpStatus.OK;
-		Object response = new Message("Success");
-		try {
-			response = transactionService.listPaymentTransactionsFromAccount(account_id);
-		} catch (Exception e) {
-			responseCode = HttpStatus.BAD_REQUEST;
-			response = new Message(e.getMessage());
-		}
-		return new ResponseEntity<Object>(response, responseCode);		
-	}
+//	@RequestMapping(path = "/payments/{account_id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
+//	public @ResponseBody ResponseEntity<?> listPaymentTransactionsFromAccount(@PathVariable("account_id") String account_id) {
+//		logger.info(String.format("get /payments/{account_id}"));
+//		HttpStatus responseCode = HttpStatus.OK;
+//		Object response = new Message("Success");
+//		try {
+//			response = transactionService.listPaymentTransactionsFromAccount(account_id);
+//		} catch (Exception e) {
+//			responseCode = HttpStatus.BAD_REQUEST;
+//			response = new Message(e.getMessage());
+//		}
+//		return new ResponseEntity<Object>(response, responseCode);		
+//	}
 	
 	@RequestMapping(path = "/cleartables", method = RequestMethod.GET, produces = MediaType.APPLICATION_STREAM_JSON_VALUE)
 	public @ResponseBody ResponseEntity<?> cleartables() {
