@@ -18,9 +18,9 @@ import com.company.ms.cassandra.CassandraClient;
 
 @EnableAutoConfiguration(exclude={CassandraDataAutoConfiguration.class})
 @ComponentScan(basePackages = { "com.company.ms" })
-public class Application {
+public class Start {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationRunnerBean.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(Start.class);
 
 	@Value("${cassandra.keyspaces}")
 	String keySpaces;
@@ -32,7 +32,7 @@ public class Application {
 	CassandraClient cassandraClient;
 
 	public static void main(String[] args) {
-		SpringApplication.run(Application.class, args);
+		SpringApplication.run(Start.class, args);
 	}
 	
 	@Component

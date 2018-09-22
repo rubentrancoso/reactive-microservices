@@ -109,9 +109,13 @@ public class CassandraClient {
 
 	public void startCassandra() throws InterruptedException, DockerException {
 		initDocker();
+		stoptCassandra();
+		containerRun();
+	}
+
+	public void stoptCassandra() throws InterruptedException, DockerException {
 		String containerId = containerStop(CONTAINER_NAME);
 		containerRemove(containerId);
-		containerRun();
 	}
 
 	private void initDocker() {
@@ -134,6 +138,22 @@ public class CassandraClient {
 		}
 		return null;
 	}
+	
+	public void containerStopAll() throws DockerException, InterruptedException {
+		initDocker();
+		List<Container> containers = docker.listContainers(ListContainersParam.allContainers());
+		for (Container container : containers) {
+			docker.stopContainer(container.id(), 0);
+		}
+	}	
+
+	public void containerRemoveAll() throws DockerException, InterruptedException {
+		initDocker();
+		List<Container> containers = docker.listContainers(ListContainersParam.allContainers());
+		for (Container container : containers) {
+			docker.removeContainer(container.id());
+		}
+	}	
 
 	private void containerRemove(String containerID) throws DockerException, InterruptedException {
 		if (containerID != null)
@@ -215,5 +235,32 @@ public class CassandraClient {
 		}
 
 		return false;
+	}
+
+	public void imagesRemoveAll() {
+		initDocker();
+		try {
+			
+			List<Container> containers = docker.listContainers();
+			
+			for (int i = 0; i < containers.size(); i++) {
+				System.out.println(containers.get(i));
+				docker.removeContainer(containers.get(i).id());
+			}
+			
+			List<Image> images = docker.listImages();
+
+			for (int i = 0; i < images.size(); i++) {
+				System.out.println(images.get(i));
+				docker.removeImage(images.get(i).id());
+			}
+		} catch (DockerException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }

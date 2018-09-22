@@ -2,6 +2,7 @@ CREATE COLUMNFAMILY transaction (
    transactionId varchar,
    accountId varchar, 
    operationTypeId int,
+   operationTypeDesc varchar,
    chargeOrder int,
    amount double,
    balance double,
