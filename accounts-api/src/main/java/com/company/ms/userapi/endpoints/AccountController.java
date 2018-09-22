@@ -31,7 +31,7 @@ public class AccountController {
 		accountService = _accountService;
 	}
 
-	// get limits
+	// get limits (list accounts)
 	@RequestMapping(path = "/accounts/limits", method = RequestMethod.GET, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public @ResponseBody Flux<Account> limits() {
 		logger.info(String.format("get /accounts/limits"));
